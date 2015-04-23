@@ -1,6 +1,7 @@
 var PlugBotBase = require("PlugBotBase");
 require("es6-promise");
 
-var plugBot = PlugBotBase.start(__dirname + "/..");
+var globalObject = PlugBotBase.start(__dirname + "/..");
 
-exports.bot = plugBot;
+exports.bot = globalObject.bot;
+exports.globalObject = globalObject;
