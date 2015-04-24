@@ -1,3 +1,4 @@
+require("es6-promise");
 var sqlite3 = require("sqlite3");
 
 var Log = require("PlugBotBase").Log;
@@ -11,13 +12,12 @@ var CREATE_TABLE_USERS_SQL = "CREATE TABLE users (\n"
                            + ");";
 
 var CREATE_TABLE_MEDIA_PLAYS_SQL = "CREATE TABLE media_plays (\n"
-                                 + "    play_id INTEGER NOT NULL,\n"
+                                 + "    play_id INTEGER NOT NULL PRIMARY KEY,\n"
                                  + "    user_id VARCHAR(30) NOT NULL,\n"
                                  + "    video_id VARCHAR(15) NOT NULL,\n"
                                  + "    title VARCHAR(200) NOT NULL,\n"
                                  + "    duration INTEGER NOT NULL,\n"
-                                 + "    played_on datetime NOT NULL,\n"
-                                 + "    PRIMARY KEY (play_id, played_on)\n"
+                                 + "    played_on datetime NOT NULL\n"
                                  + ");";
 
 var CREATE_TABLE_MEDIA_VOTES_SQL = "CREATE TABLE media_votes (\n"
@@ -31,7 +31,7 @@ var CREATE_TABLE_MEDIA_VOTES_SQL = "CREATE TABLE media_votes (\n"
                                  + "    CONSTRAINT chk_vote CHECK (vote == 1 OR vote == -1)\n"
                                  + ");";
 
-var INSERT_MEDIA_PLAY_SQL = "INSERT OR IGNORE INTO media_plays (video_id, user_id, title, duration, played_on) VALUES (?, ?, ?, ?, ?)";
+var INSERT_MEDIA_PLAY_SQL = "INSERT INTO media_plays (video_id, user_id, title, duration, played_on) VALUES (?, ?, ?, ?, ?)";
 var INSERT_MEDIA_VOTE_SQL = "INSERT OR REPLACE INTO media_votes (play_id, user_id, vote) VALUES (?, ?, ?)";
 var INSERT_USER_SQL = "INSERT OR REPLACE INTO users (id, username) VALUES (?, ?)";
 
@@ -104,6 +104,7 @@ function SqliteDao(dbFilePath) {
         return dbPromise.then(function(db) {
             return new Promise(function(resolve, reject) {
                 INSERT_MEDIA_PLAY_STATEMENT.run([play.videoID, play.userID, play.title, play.duration, play.playedOn], function(err) {
+                    LOG.info("Args: {}", arguments);
                     if (err) {
                         LOG.info("Error occurred when inserting media play {}. The error: {}", play, err);
                         reject(err);
