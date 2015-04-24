@@ -1,6 +1,6 @@
 var PlugBotBase = require("PlugBotBase");
 
-var LOG = new PlugBotBase.Log("DatabaseTracking");
+var LOG = new PlugBotBase.Log("AutowootDetection");
 
 function handleVoteEvent(event, globalObject) {
     var currentPlay = globalObject.roomState.playHistory[0];
@@ -8,6 +8,7 @@ function handleVoteEvent(event, globalObject) {
 
     if (event.vote === 1 && now - currentPlay.startDate < 2000) { // TODO make configuration-driven
         var autowooter = globalObject.roomState.findUserInRoomById(event.userID);
+        LOG.info("Found autowooting by {} (userID = {})", autowooter.username, autowooter.userID);
         globalObject.bot.sendChat("@{} Auto-wooting is not allowed in this room. Please disable your autowoot script.", autowooter.username);
     }
 }
