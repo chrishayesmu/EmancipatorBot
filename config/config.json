@@ -1,0 +1,19 @@
+{
+    "PlugBotBase" : {
+        "logAllEvents" : true,
+        "roomName" : "emancipator"
+    },
+    "Emancipator" : {
+        "databaseFile" : "emancipator.db",
+        "AutoSkipMehhedSongs" : {
+            "forceSkipMehhedSongs": false,
+            "percentageToSkipAt": 25,
+            "preventSingleMehFromSkipping": true
+        },
+        "DuplicatePlayDetection": {
+            "forceSkipRepeatedSongs" : false,
+            "minTimeBetweenPlaysInMinutes" : 120,
+            "moveSkippedDjsToTopOfWaitList": true
+        }
+    }
+}
