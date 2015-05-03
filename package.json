@@ -6,9 +6,13 @@
   "scripts": {},
   "author": "",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/chrishayesmu/EmancipatorBot"
+  },
   "dependencies": {
     "es6-promise": "2.1.0",
-    "plugbotbase": "^0.3.0",
+    "plugbotbase": "^0.5.0",
     "sqlite3": "3.0.5"
   },
   "scripts": {
