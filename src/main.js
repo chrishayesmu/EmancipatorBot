@@ -1,4 +1,4 @@
-var PlugBotBase = require("PlugBotBase");
+var PlugBotBase = require("plugbotbase");
 require("es6-promise");
 
 var globalObject = PlugBotBase.start(__dirname + "/..");

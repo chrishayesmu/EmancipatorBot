@@ -1,6 +1,6 @@
 var exec = require('child_process').exec;
 
-var PlugBotBase = require("PlugBotBase");
+var PlugBotBase = require("plugbotbase");
 
 var LOG = new PlugBotBase.Log("FortuneCommand");
 

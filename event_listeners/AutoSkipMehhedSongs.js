@@ -5,7 +5,7 @@
  * skip the song.
  */
 
-var PlugBotBase = require("PlugBotBase");
+var PlugBotBase = require("plugbotbase");
 
 var LOG = new PlugBotBase.Log("AutoSkipMehhedSongs");
 

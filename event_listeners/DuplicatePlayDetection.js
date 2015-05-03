@@ -6,7 +6,7 @@
  * song and/or restore the skipped DJ to the top of the wait list.
  */
 
-var PlugBotBase = require("PlugBotBase");
+var PlugBotBase = require("plugbotbase");
 
 var LOG = new PlugBotBase.Log("DuplicatePlayDetection");
 
