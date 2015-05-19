@@ -104,7 +104,6 @@ function SqliteDao(dbFilePath) {
         return dbPromise.then(function(db) {
             return new Promise(function(resolve, reject) {
                 INSERT_MEDIA_PLAY_STATEMENT.run([play.videoID, play.userID, play.title, play.duration, play.playedOn], function(err) {
-                    LOG.info("Args: {}", arguments);
                     if (err) {
                         LOG.info("Error occurred when inserting media play {}. The error: {}", play, err);
                         reject(err);
