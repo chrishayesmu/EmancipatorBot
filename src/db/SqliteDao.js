@@ -31,6 +31,9 @@ var CREATE_TABLE_MEDIA_VOTES_SQL = "CREATE TABLE media_votes (\n"
                                  + "    CONSTRAINT chk_vote CHECK (vote == 1 OR vote == -1)\n"
                                  + ");";
 
+var GET_TOTAL_PLAYS_FOR_USER_SQL = "SELECT COUNT(*) as num_plays FROM media_plays WHERE user_id = ?";
+var GET_INCOMING_VOTES_FOR_USER_SQL = "SELECT COUNT(*) as num_votes, vote FROM media_votes mv JOIN media_plays mp USING (play_id) WHERE mp.user_id = ? GROUP BY vote";
+var GET_OUTGOING_VOTES_FOR_USER_SQL = "SELECT COUNT(*) as num_votes, vote FROM media_votes WHERE user_id = ? GROUP BY vote";
 var INSERT_MEDIA_PLAY_SQL = "INSERT INTO media_plays (video_id, user_id, title, duration, played_on) VALUES (?, ?, ?, ?, ?)";
 var INSERT_MEDIA_VOTE_SQL = "INSERT OR REPLACE INTO media_votes (play_id, user_id, vote) VALUES (?, ?, ?)";
 var INSERT_USER_SQL = "INSERT OR REPLACE INTO users (id, username) VALUES (?, ?)";
@@ -62,12 +65,17 @@ function getInstance(dbFilePath) {
  * @returns {object} An instance of the DAO
  */
 function SqliteDao(dbFilePath) {
+    var GET_INCOMING_VOTES_FOR_USER_STMT;
+    var GET_OUTGOING_VOTES_FOR_USER_STMT;
+    var GET_TOTAL_PLAYS_FOR_USER_STMT;
     var INSERT_MEDIA_PLAY_STATEMENT;
     var INSERT_MEDIA_VOTE_STATEMENT;
     var INSERT_USER_STATEMENT;
 
     LOG.info("Attempting to create new DAO with database file path {}", dbFilePath);
 
+    // Attempt to open an existing file at the given path; if that fails, we have to create a new
+    // one, and then
     var dbPromise = _createDatabase(dbFilePath, sqlite3.OPEN_READWRITE).catch(function(err) {
         LOG.info("Initial database creation failed; trying again by creating a new database file");
 
@@ -87,11 +95,134 @@ function SqliteDao(dbFilePath) {
             return createUsersPromise.then(createMediaPlaysPromise).then(createMediaVotesPromise);
         });
     }).then(function(db) {
+        GET_INCOMING_VOTES_FOR_USER_STMT = db.prepare(GET_INCOMING_VOTES_FOR_USER_SQL);
+        GET_OUTGOING_VOTES_FOR_USER_STMT = db.prepare(GET_OUTGOING_VOTES_FOR_USER_SQL);
+        GET_TOTAL_PLAYS_FOR_USER_STMT = db.prepare(GET_TOTAL_PLAYS_FOR_USER_SQL);
         INSERT_MEDIA_PLAY_STATEMENT = db.prepare(INSERT_MEDIA_PLAY_SQL);
         INSERT_MEDIA_VOTE_STATEMENT = db.prepare(INSERT_MEDIA_VOTE_SQL);
         INSERT_USER_STATEMENT = db.prepare(INSERT_USER_SQL);
+
         LOG.info("DAO created successfully");
     });
+
+    /**
+     * Retrieves how many votes a user has had cast on their songs, grouped by type.
+     *
+     * @param {integer} userID - The ID of the user to look up
+     * @returns {Promise} A promise for an object in the form
+     *
+     * {
+     *     woots: 123,
+     *     mehs: 321
+     * }
+     */
+    this.getNumberOfIncomingVotesForUser = function(userID) {
+        return dbPromise.then(function(db) {
+            return new Promise(function(resolve, reject) {
+                GET_INCOMING_VOTES_FOR_USER_STMT.all([userID], function(err, rows) {
+                    var obj = { woots: 0, mehs: 0 };
+                    if (err) {
+                        LOG.error("An error occurred while querying for incoming votes for userID={}: {}", userID, err);
+                        resolve(obj);
+                        return;
+                    }
+
+                    if (rows.length > 0) {
+                        if (rows[0].vote === -1) {
+                            obj.mehs = rows[0].num_votes;
+                        }
+                        else {
+                            obj.woots = rows[0].num_votes;
+                        }
+                    }
+
+                    if (rows.length > 1) {
+                        if (rows[1].vote === -1) {
+                            obj.mehs = rows[1].num_votes;
+                        }
+                        else {
+                            obj.woots = rows[1].num_votes;
+                        }
+                    }
+
+                    resolve(obj);
+                });
+            });
+        });
+    };
+
+    /**
+     * Gets the total number of times the user has played a song in the room.
+     *
+     * @param {integer} userID - The ID of the user to look up
+     * @returns {Promise} A promise for the number of plays the user has
+     */
+    this.getNumberOfPlaysByUser = function(userID) {
+        return dbPromise.then(function(db) {
+            return new Promise(function(resolve, reject) {
+                GET_TOTAL_PLAYS_FOR_USER_STMT.all([userID], function(err, rows) {
+                    if (err) {
+                        LOG.error("An error occurred while querying for number of plays by userID={}: {}", userID, err);
+                        resolve(0);
+                        return;
+                    }
+
+                    if (rows.length > 0) {
+                        resolve(rows[0].num_plays);
+                    }
+                    else {
+                        resolve(0);
+                    }
+                });
+            });
+        });
+    };
+
+    /**
+     * Retrieves how many votes a user has cast, grouped by type.
+     *
+     * @param {integer} userID - The ID of the user to look up
+     * @returns {Promise} A promise for an object in the form
+     *
+     * {
+     *     woots: 123,
+     *     mehs: 321
+     * }
+     */
+    this.getNumberOfVotesCastByUser = function(userID) {
+        return dbPromise.then(function(db) {
+            return new Promise(function(resolve, reject) {
+                GET_OUTGOING_VOTES_FOR_USER_STMT.all([userID], function(err, rows) {
+                    var obj = { woots: 0, mehs: 0 };
+                    if (err) {
+                        LOG.error("An error occurred while querying for votes cast by userID={}: {}", userID, err);
+                        resolve(obj);
+                        return;
+                    }
+
+                    if (rows.length > 0) {
+                        if (rows[0].vote === -1) {
+                            obj.mehs = rows[0].num_votes;
+                        }
+                        else {
+                            obj.woots = rows[0].num_votes;
+                        }
+                    }
+
+                    if (rows.length > 1) {
+                        if (rows[1].vote === -1) {
+                            obj.mehs = rows[1].num_votes;
+                        }
+                        else {
+                            obj.woots = rows[1].num_votes;
+                        }
+                    }
+
+                    resolve(obj);
+                });
+            });
+        });
+    };
 
     /**
      * Inserts a media play record to the database.
@@ -115,7 +246,7 @@ function SqliteDao(dbFilePath) {
                 });
             });
         });
-    }
+    };
 
     /**
      * Upserts a media vote record to the database. (If it already exists, it will be updated; otherwise it will be inserted.)
@@ -139,7 +270,7 @@ function SqliteDao(dbFilePath) {
                 });
             });
         });
-    }
+    };
 
     /**
      * Upserts a user record to the database. (If it already exists, it will be updated; otherwise it will be inserted.)
@@ -163,7 +294,7 @@ function SqliteDao(dbFilePath) {
                 });
             });
         });
-    }
+    };
 }
 
 /**
