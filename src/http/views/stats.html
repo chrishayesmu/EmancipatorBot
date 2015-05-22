@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>EmancipatorBot Stats</title>
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="/stats.css">
+
+        <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.4/d3.min.js"></script>
+        <script src="/d3pie.min.js"></script>
+        <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    </head>
+    <body>
+        <div class="container page-header">
+            <h1>User stats for {{username}}</h1>
+        </div>
+        <div class="panel panel-default votes-panel">
+            <h3 class="panel-heading votes-heading">Votes cast</h3>
+            <div class="panel-body">
+                <p>Woots: {{outgoingVotes.woots}}</p>
+                <p>Mehs: {{outgoingVotes.mehs}}</p>
+                <div id="outgoingVotesPieChart"></div>
+            </div>
+        </div>
+        <div class="panel panel-default votes-panel">
+            <h3 class="panel-heading votes-heading">Votes received</h3>
+            <div class="panel-body">
+                <p>Woots: {{incomingVotes.woots}}</p>
+                <p>Mehs: {{incomingVotes.mehs}}</p>
+                <div id="incomingVotesPieChart"></div>
+            </div>
+        </div>
+
+        <script src="/stats.js"></script>
+        <script>
+            var incomingVotes = {
+                mehs: {{incomingVotes.mehs}},
+                woots: {{incomingVotes.woots}}
+            };
+
+            var outgoingVotes = {
+                mehs: {{outgoingVotes.mehs}},
+                woots: {{outgoingVotes.woots}}
+            };
+
+            createPieCharts(incomingVotes, outgoingVotes);
+        </script>
+    </body>
+</html>

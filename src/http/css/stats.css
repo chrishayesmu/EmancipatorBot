@@ -1,0 +1,9 @@
+.votes-panel {
+    float: left;
+    margin-left: 3%;
+    width: 45%;
+}
+
+.votes-heading {
+    margin-top: 0;
+}

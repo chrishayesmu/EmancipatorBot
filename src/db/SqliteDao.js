@@ -31,9 +31,10 @@ var CREATE_TABLE_MEDIA_VOTES_SQL = "CREATE TABLE media_votes (\n"
                                  + "    CONSTRAINT chk_vote CHECK (vote == 1 OR vote == -1)\n"
                                  + ");";
 
-var GET_TOTAL_PLAYS_FOR_USER_SQL = "SELECT COUNT(*) as num_plays FROM media_plays WHERE user_id = ?";
 var GET_INCOMING_VOTES_FOR_USER_SQL = "SELECT COUNT(*) as num_votes, vote FROM media_votes mv JOIN media_plays mp USING (play_id) WHERE mp.user_id = ? GROUP BY vote";
 var GET_OUTGOING_VOTES_FOR_USER_SQL = "SELECT COUNT(*) as num_votes, vote FROM media_votes WHERE user_id = ? GROUP BY vote";
+var GET_TOTAL_PLAYS_FOR_USER_SQL = "SELECT COUNT(*) as num_plays FROM media_plays WHERE user_id = ?";
+var GET_USER_SQL = "SELECT id, username FROM users WHERE id = ?";
 var INSERT_MEDIA_PLAY_SQL = "INSERT INTO media_plays (video_id, user_id, title, duration, played_on) VALUES (?, ?, ?, ?, ?)";
 var INSERT_MEDIA_VOTE_SQL = "INSERT OR REPLACE INTO media_votes (play_id, user_id, vote) VALUES (?, ?, ?)";
 var INSERT_USER_SQL = "INSERT OR REPLACE INTO users (id, username) VALUES (?, ?)";
@@ -68,6 +69,7 @@ function SqliteDao(dbFilePath) {
     var GET_INCOMING_VOTES_FOR_USER_STMT;
     var GET_OUTGOING_VOTES_FOR_USER_STMT;
     var GET_TOTAL_PLAYS_FOR_USER_STMT;
+    var GET_USER_STMT;
     var INSERT_MEDIA_PLAY_STATEMENT;
     var INSERT_MEDIA_VOTE_STATEMENT;
     var INSERT_USER_STATEMENT;
@@ -98,6 +100,7 @@ function SqliteDao(dbFilePath) {
         GET_INCOMING_VOTES_FOR_USER_STMT = db.prepare(GET_INCOMING_VOTES_FOR_USER_SQL);
         GET_OUTGOING_VOTES_FOR_USER_STMT = db.prepare(GET_OUTGOING_VOTES_FOR_USER_SQL);
         GET_TOTAL_PLAYS_FOR_USER_STMT = db.prepare(GET_TOTAL_PLAYS_FOR_USER_SQL);
+        GET_USER_STMT = db.prepare(GET_USER_SQL);
         INSERT_MEDIA_PLAY_STATEMENT = db.prepare(INSERT_MEDIA_PLAY_SQL);
         INSERT_MEDIA_VOTE_STATEMENT = db.prepare(INSERT_MEDIA_VOTE_SQL);
         INSERT_USER_STATEMENT = db.prepare(INSERT_USER_SQL);
@@ -217,6 +220,35 @@ function SqliteDao(dbFilePath) {
                             obj.woots = rows[1].num_votes;
                         }
                     }
+
+                    resolve(obj);
+                });
+            });
+        });
+    };
+
+    /**
+     * Retrieves a user from the database. Collects only minimal data:
+     * the user's ID and username.
+     *
+     * @param {integer} userID - The ID of the user to look up
+     * @returns {Promise} A promise for the user's information
+     */
+    this.getUser = function(userID) {
+        return dbPromise.then(function(db) {
+            return new Promise(function(resolve, reject) {
+                GET_USER_STMT.get([userID], function(err, row) {
+                    LOG.info("err: {}, row: {}", err, row);
+                    if (err) {
+                        LOG.error("An error occurred while querying userID={}: {}", userID, err);
+                        reject(err);
+                        return;
+                    }
+
+                    var obj = {
+                        userID: row.id,
+                        username: row.username
+                    };
 
                     resolve(obj);
                 });
