@@ -11,9 +11,10 @@ function handleAdvanceEvent(event, globalObject) {
     var timeToWaitInSeconds = globalObject.config.Emancipator.AutoSkipBuggedSongs.timeToWaitInSeconds;
     var timeToWaitBeforeSkippingInMs = (event.media.durationInSeconds + timeToWaitInSeconds) * 1000;
     var mediaContentID = event.media.contentID;
+    LOG.info("Waiting {} milliseconds to (potentially) skip", timeToWaitBeforeSkippingInMs);
 
     setTimeout(function() {
-        var currentSong = globalObject.roomState.playHistory[0];
+        var currentSong = globalObject.roomState.playHistory[0].media;
 
         if (currentSong.contentID === mediaContentID) {
             bot.sendChat("The current song appears to be bugged and should have already ended.");
