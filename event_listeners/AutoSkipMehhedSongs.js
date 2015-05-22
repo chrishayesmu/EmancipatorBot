@@ -20,13 +20,13 @@ function handleVoteEvent(event, globalObject) {
         return;
     }
 
-    var forceSkipMehhedSongs = globalObject.config.Emancipator.AutoSkipMehhedSongs.forceSkipMehhedSongs;
     var percentageToSkipAt = globalObject.config.Emancipator.AutoSkipMehhedSongs.percentageToSkipAt;
     var preventSingleMehFromSkipping = globalObject.config.Emancipator.AutoSkipMehhedSongs.preventSingleMehFromSkipping;
 
     var currentPlay = globalObject.roomState.playHistory[0];
     var numberOfMehs = currentPlay.votes.mehs.length;
-    var percentageOfRoomMehhing = 100 * (numberOfMehs / globalObject.roomState.usersInRoom.length);
+    var numberOfListeners = globalObject.roomState.usersInRoom.length - 1; // don't count the bot
+    var percentageOfRoomMehhing = 100 * (numberOfMehs / numberOfListeners);
 
     if (percentageOfRoomMehhing > percentageToSkipAt && (!preventSingleMehFromSkipping || numberOfMehs > 1)) {
         LOG.info("Current song exceeded meh skip threshold of {}%", percentageToSkipAt);
