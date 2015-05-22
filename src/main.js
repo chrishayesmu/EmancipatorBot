@@ -1,5 +1,5 @@
 var PlugBotBase = require("plugbotbase");
-require("es6-promise");
+require("./promise").polyfill();
 
 var globalObject = PlugBotBase.start(__dirname + "/..");
 
