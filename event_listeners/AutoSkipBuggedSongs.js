@@ -14,6 +14,7 @@ function handleAdvanceEvent(event, globalObject) {
     LOG.info("Waiting {} milliseconds to (potentially) skip", timeToWaitBeforeSkippingInMs);
 
     setTimeout(function() {
+        var bot = globalObject.bot;
         var currentSong = globalObject.roomState.playHistory[0].media;
 
         if (currentSong.contentID === mediaContentID) {
