@@ -10,6 +10,13 @@ var PlugBotBase = require("plugbotbase");
 
 var LOG = new PlugBotBase.Log("DuplicatePlayDetection");
 
+// Since plug.dj's clocks don't always agree with ours,
+// and since some small amount of time can pass between the
+// song starting and this event handler running, we need to
+// fudge things a bit to avoid triggering a duplicate warning
+// on the current play itself.
+var TIME_FUDGING_AMOUNT_IN_MS = 15000;
+
 function handleAdvanceEvent(event, globalObject) {
     var requiredMinutesBetweenPlays = globalObject.config.Emancipator.DuplicatePlayDetection.minTimeBetweenPlaysInMinutes;
     var minElapsedTimeInMs = 1000 * 60 * requiredMinutesBetweenPlays;
@@ -17,12 +24,16 @@ function handleAdvanceEvent(event, globalObject) {
 
     var playsOfSameVideo = globalObject.roomState.findPlaysForContentId(event.media.contentID);
 
+    if (playsOfSameVideo.length < 2) {
+        return;
+    }
+
     for (var i = 0; i < playsOfSameVideo.length; i++) {
         var play = playsOfSameVideo[i];
         var timeSincePlay = now - play.startDate;
 
         // Make sure timeSincePlay > 0; otherwise we're actually looking at the currently playing song
-        if (timeSincePlay > 0 && timeSincePlay <= minElapsedTimeInMs) {
+        if (timeSincePlay > TIME_FUDGING_AMOUNT_IN_MS && timeSincePlay <= minElapsedTimeInMs) {
             globalObject.bot.sendChat("This song was played less than {} minutes ago by {}.", requiredMinutesBetweenPlays, play.user.username);
             skipIfAllowed(globalObject, event.incomingDJ.userID);
             return;
