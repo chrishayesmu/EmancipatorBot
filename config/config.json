@@ -5,6 +5,10 @@
     },
     "Emancipator" : {
         "databaseFile" : "emancipator.db",
+        "AutoSkipBuggedSongs" : {
+            "forceSkipBuggedSongs": false,
+            "timeToWaitInSeconds": 3
+        },
         "AutoSkipMehhedSongs" : {
             "forceSkipMehhedSongs": false,
             "percentageToSkipAt": 25,
