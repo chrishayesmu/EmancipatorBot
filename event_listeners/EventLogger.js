@@ -12,7 +12,11 @@ var Event = PlugBotBase.Event;
 
 var LOG = new PlugBotBase.Log("EventLogger");
 
-function chatHandler(event, /* unused */ global) {
+function advanceHandler(event, globalObject) {
+    LOG.info("The DJ has changed to {} playing \"{}\".", event.incomingDJ.username, event.media.fullTitle);
+}
+
+function chatHandler(event, /* unused */ globalObject) {
     var chatDescriptor;
     switch (event.type) {
         case ChatType.MESSAGE:
@@ -52,5 +56,7 @@ function voteHandler(event, globalObject) {
     LOG.info("{} {} the current song", user.username, voteType);
 }
 
+module.exports[Event.ADVANCE] = { handler: advanceHandler };
 module.exports[Event.CHAT] = { handler: chatHandler };
+module.exports[Event.GRAB] = { handler: grabHandler };
 module.exports[Event.VOTE] = { handler: voteHandler };
