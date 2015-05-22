@@ -6,18 +6,21 @@
     "Emancipator" : {
         "databaseFile" : "emancipator.db",
         "AutoSkipBuggedSongs" : {
-            "forceSkipBuggedSongs": false,
+            "forceSkipBuggedSongs" : false,
             "timeToWaitInSeconds": 3
         },
         "AutoSkipMehhedSongs" : {
-            "forceSkipMehhedSongs": false,
-            "percentageToSkipAt": 25,
-            "preventSingleMehFromSkipping": true
+            "forceSkipMehhedSongs" : false,
+            "percentageToSkipAt" : 25,
+            "preventSingleMehFromSkipping" : true
+        },
+        "AutowootDetection" : {
+            "ignoreAutowooting" : true
         },
         "DuplicatePlayDetection": {
             "forceSkipRepeatedSongs" : false,
             "minTimeBetweenPlaysInMinutes" : 120,
-            "moveSkippedDjsToTopOfWaitList": true
+            "moveSkippedDjsToTopOfWaitList" : true
         }
     }
 }

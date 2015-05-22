@@ -3,6 +3,10 @@ var PlugBotBase = require("plugbotbase");
 var LOG = new PlugBotBase.Log("AutowootDetection");
 
 function handleVoteEvent(event, globalObject) {
+    if (globalObject.config.Emancipator.AutowootDetection.ignoreAutowooting) {
+        return;
+    }
+
     var currentPlay = globalObject.roomState.playHistory[0];
     var now = Date.now();
 
