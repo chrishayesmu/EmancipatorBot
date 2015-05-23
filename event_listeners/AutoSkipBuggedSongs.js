@@ -18,7 +18,7 @@ function handleAdvanceEvent(event, globalObject) {
         var currentSong = globalObject.roomState.playHistory[0].media;
 
         if (currentSong.contentID === mediaContentID) {
-            bot.sendChat("The current song is bugged and should have ended.");
+            bot.sendChat("This song is bugged and should have ended.");
 
             if (globalObject.config.Emancipator.AutoSkipBuggedSongs.forceSkipBuggedSongs) {
                 bot.forceSkip();
