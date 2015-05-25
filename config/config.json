@@ -6,6 +6,7 @@
     "Emancipator" : {
         "databaseFile" : "emancipator.db",
         "AutoSkipBuggedSongs" : {
+            "chatHistoryDistanceToSearch" : 5,
             "forceSkipBuggedSongs" : false,
             "timeToWaitInSeconds": 3
         },
