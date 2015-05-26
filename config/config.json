@@ -16,7 +16,8 @@
             "preventSingleMehFromSkipping" : true
         },
         "AutowootDetection" : {
-            "ignoreAutowooting" : true
+            "autowootDurationInMilliseconds": 3000,
+            "ignoreAutowooting" : false
         },
         "DuplicatePlayDetection": {
             "forceSkipRepeatedSongs" : false,
