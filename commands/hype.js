@@ -3,13 +3,10 @@ var PlugBotBase = require("plugbotbase");
 function handler(event, globalObject) {
     var bot = globalObject.bot;
 
-    bot.sendChat("B T F O");
-    bot.sendChat("T");
-    bot.sendChat("F");
-    bot.sendChat("O");
+    bot.sendChat("http://i.imgur.com/PSCIRCR.png");
 }
 
 module.exports = {
     handler: handler,
-    triggers: [ "btfo" ]
+    triggers: [ "e3", "hype" ]
 }
