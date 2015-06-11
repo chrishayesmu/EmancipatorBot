@@ -1,5 +1,5 @@
 var PlugBotBase = require("plugbotbase");
-require("./promise").polyfill();
+require("./polyfills").polyfill();
 
 var botServer = require("./http/server");
 
