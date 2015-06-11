@@ -31,6 +31,7 @@ var CREATE_TABLE_MEDIA_VOTES_SQL = "CREATE TABLE media_votes (\n"
                                  + "    CONSTRAINT chk_vote CHECK (vote == 1 OR vote == -1)\n"
                                  + ");";
 
+var FIND_SIMILAR_USERS_SQL = "SELECT id, username FROM users WHERE username LIKE '%' || ? || '%'";
 var GET_INCOMING_VOTES_FOR_USER_SQL = "SELECT COUNT(*) as num_votes, vote FROM media_votes mv JOIN media_plays mp USING (play_id) WHERE mp.user_id = ? GROUP BY vote";
 var GET_OUTGOING_VOTES_FOR_USER_SQL = "SELECT COUNT(*) as num_votes, vote FROM media_votes WHERE user_id = ? GROUP BY vote";
 var GET_TOTAL_PLAYS_FOR_USER_SQL = "SELECT COUNT(*) as num_plays FROM media_plays WHERE user_id = ?";
@@ -66,6 +67,7 @@ function getInstance(dbFilePath) {
  * @returns {object} An instance of the DAO
  */
 function SqliteDao(dbFilePath) {
+    var FIND_SIMILAR_USERS_STMT;
     var GET_INCOMING_VOTES_FOR_USER_STMT;
     var GET_OUTGOING_VOTES_FOR_USER_STMT;
     var GET_TOTAL_PLAYS_FOR_USER_STMT;
@@ -97,6 +99,7 @@ function SqliteDao(dbFilePath) {
             return createUsersPromise.then(createMediaPlaysPromise).then(createMediaVotesPromise);
         });
     }).then(function(db) {
+        FIND_SIMILAR_USERS_STMT = db.prepare(FIND_SIMILAR_USERS_SQL);
         GET_INCOMING_VOTES_FOR_USER_STMT = db.prepare(GET_INCOMING_VOTES_FOR_USER_SQL);
         GET_OUTGOING_VOTES_FOR_USER_STMT = db.prepare(GET_OUTGOING_VOTES_FOR_USER_SQL);
         GET_TOTAL_PLAYS_FOR_USER_STMT = db.prepare(GET_TOTAL_PLAYS_FOR_USER_SQL);
@@ -107,6 +110,37 @@ function SqliteDao(dbFilePath) {
 
         LOG.info("DAO created successfully");
     });
+
+    /**
+     * Locates users with names "similar" to the one provided, where similar means that
+     * the provided string is a substring of the user's name. No effort is made to rank
+     * names based on how similar they are. This method is case-insensitive.
+     *
+     * @param {string} username - The username to find similar names for
+     * @returns {array[User]} - The users with names similar to the provided
+     */
+    this.findUsersWithSimilarName = function(username) {
+        return dbPromise.then(function(db) {
+            return new Promise(function(resolve, reject) {
+                FIND_SIMILAR_USERS_STMT.all([username], function(err, rows) {
+                    if (err) {
+                        LOG.error("An error occurred while querying for users with names similar to {}: {}", username, err);
+                        reject(err);
+                        return;
+                    }
+
+                    var arr = rows.map(function(row) {
+                        return {
+                            userID: row.id,
+                            username: row.username
+                        };
+                    });
+
+                    resolve(arr);
+                });
+            });
+        });
+    };
 
     /**
      * Retrieves how many votes a user has had cast on their songs, grouped by type.

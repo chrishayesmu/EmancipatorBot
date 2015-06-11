@@ -1,7 +1,7 @@
 {
     "PlugBotBase" : {
         "logAllEvents" : true,
-        "roomName" : "emancipator"
+        "roomName" : "7476651300257795202"
     },
     "Emancipator" : {
         "databaseFile" : "emancipator.db",
