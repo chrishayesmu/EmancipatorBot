@@ -29,22 +29,28 @@ function handleStatsRequest(request, response) {
     var userID = request.params.userID;
     LOG.info("Received stats request for userID {}", userID);
 
-    dao.getNumberOfIncomingVotesForUser(userID).then(function(incomingVotesObj) {
-        dao.getNumberOfVotesCastByUser(userID).then(function(votesCastObj) {
-            dao.getNumberOfPlaysByUser(userID).then(function(numberOfPlays) {
-                dao.getUser(userID).then(function(user) {
-                    var incomingWootPercentage = _calculateWootPercentage(incomingVotesObj);
-                    var outgoingWootPercentage = _calculateWootPercentage(votesCastObj);
+    var promises = [
+        dao.getNumberOfIncomingVotesForUser(userID),
+        dao.getNumberOfVotesCastByUser(userID),
+        dao.getNumberOfPlaysByUser(userID),
+        dao.getUser(userID)
+    ];
 
-                    response.render("stats", {
-                        incomingVotes: incomingVotesObj,
-                        numberOfPlays: numberOfPlays,
-                        outgoingVotes: votesCastObj,
-                        userID: userID,
-                        username: user.username
-                    });
-                });
-            });
+    Promise.all(promises).then(function(values) {
+        var incomingVotesObj = values[0];
+        var votesCastObj = values[1];
+        var numberOfPlays = values[2];
+        var requestedUser = values[3];
+
+        var incomingWootPercentage = _calculateWootPercentage(incomingVotesObj);
+        var outgoingWootPercentage = _calculateWootPercentage(votesCastObj);
+
+        response.render("stats", {
+            incomingVotes: incomingVotesObj,
+            numberOfPlays: numberOfPlays,
+            outgoingVotes: votesCastObj,
+            userID: userID,
+            username: requestedUser.username
         });
     });
 }
