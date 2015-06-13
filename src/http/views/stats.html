@@ -48,42 +48,41 @@
                 var outgoingData = {{{outgoingVotesBarGraphData}}};
                 var incomingData = {{{incomingVotesBarGraphData}}};
 
-                var options = {
-                    chartArea: {
-                        bottom: 0,
-                        height: 350,
-                        right: 0,
-                        top: 30
-                    },
-                    colors: [ "green", "red" ],
-                    legend: { position: "top", maxLines: 1 },
-                    hAxis: { viewWindow: {} },
-                    height: 400,
-                    width: 525,
-                    isStacked: true,
-                };
+                drawVotingBarChart(outgoingData, document.getElementById("outgoingVotesBarChart"));
+                drawVotingBarChart(incomingData, document.getElementById("incomingVotesBarChart"));
 
-                var reductionFunc = function(max, current) {
-                    if (typeof current[1] === "number" && typeof current[2] === "number") {
-                        return Math.max(max, current[1] + current[2]);
-                    }
-                    else {
-                        return max;
-                    }
-                };
+                function drawVotingBarChart(data, element) {
+                    var options = {
+                        chartArea: {
+                            bottom: 0,
+                            height: 350,
+                            right: 0,
+                            top: 30
+                        },
+                        colors: [ "green", "red" ],
+                        legend: { position: "top", maxLines: 1 },
+                        hAxis: { viewWindow: {} },
+                        height: 400,
+                        width: 525,
+                        isStacked: true,
+                    };
 
-                var outgoingDataTable = google.visualization.arrayToDataTable(outgoingData);
-                var outgoingChart = new google.visualization.BarChart(document.getElementById("outgoingVotesBarChart"));
-                var outgoingMaxValue = outgoingData.reduce(reductionFunc, 0);
+                    var reductionFunc = function(max, current) {
+                        if (typeof current[1] === "number" && typeof current[2] === "number") {
+                            return Math.max(max, current[1] + current[2]);
+                        }
+                        else {
+                            return max;
+                        }
+                    };
 
-                var incomingDataTable = google.visualization.arrayToDataTable(incomingData);
-                var incomingChart = new google.visualization.BarChart(document.getElementById("incomingVotesBarChart"));
-                var incomingMaxValue = incomingData.reduce(reductionFunc, 0);
+                    var dataTable = google.visualization.arrayToDataTable(data);
+                    var chart = new google.visualization.BarChart(element);
+                    var maxValue = data.reduce(reductionFunc, 0);
 
-                options.hAxis.viewWindow.max = outgoingMaxValue;
-                outgoingChart.draw(outgoingDataTable, options);
-                options.hAxis.viewWindow.max = incomingMaxValue;
-                incomingChart.draw(incomingDataTable, options);
+                    options.hAxis.viewWindow.max = maxValue;
+                    chart.draw(dataTable, options);
+                }
             }
 
             createPieCharts(incomingVotes, outgoingVotes);
