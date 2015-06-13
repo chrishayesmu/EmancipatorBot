@@ -23,6 +23,10 @@
             "forceSkipRepeatedSongs" : false,
             "minTimeBetweenPlaysInMinutes" : 120,
             "moveSkippedDjsToTopOfWaitList" : true
+        },
+        "HttpServer": {
+            "hostname": "localhost",
+            "port": 8080
         }
     }
 }

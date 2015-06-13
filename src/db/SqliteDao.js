@@ -32,8 +32,8 @@ var CREATE_TABLE_MEDIA_VOTES_SQL = "CREATE TABLE media_votes (\n"
                                  + ");";
 
 var FIND_SIMILAR_USERS_SQL = "SELECT id, username FROM users WHERE username LIKE '%' || ? || '%'";
-var GET_INCOMING_VOTES_FOR_USER_SQL = "SELECT COUNT(*) as num_votes, vote FROM media_votes mv JOIN media_plays mp USING (play_id) WHERE mp.user_id = ? GROUP BY vote";
-var GET_OUTGOING_VOTES_FOR_USER_SQL = "SELECT COUNT(*) as num_votes, vote FROM media_votes WHERE user_id = ? GROUP BY vote";
+var GET_INCOMING_VOTES_FOR_USER_SQL = "SELECT mv.user_id AS userID, u.username AS username, mp.title AS videoTitle, mp.video_id AS videoID, mv.voted_on AS voteDate, vote FROM (media_votes mv JOIN media_plays mp USING (play_id)) JOIN users u ON u.id = mv.user_id WHERE mp.user_id = ?";
+var GET_OUTGOING_VOTES_FOR_USER_SQL = "SELECT mp.user_id AS userID, u.username AS username, mp.title AS videoTitle, mp.video_id AS videoID, mv.voted_on AS voteDate, vote FROM (media_votes mv JOIN media_plays mp USING (play_id)) JOIN users u ON u.id = mp.user_id WHERE mv.user_id = ?";
 var GET_TOTAL_PLAYS_FOR_USER_SQL = "SELECT COUNT(*) as num_plays FROM media_plays WHERE user_id = ?";
 var GET_USER_SQL = "SELECT id, username FROM users WHERE id = ?";
 var INSERT_MEDIA_PLAY_SQL = "INSERT INTO media_plays (video_id, user_id, title, duration, played_on) VALUES (?, ?, ?, ?, ?)";
@@ -143,44 +143,47 @@ function SqliteDao(dbFilePath) {
     };
 
     /**
-     * Retrieves how many votes a user has had cast on their songs, grouped by type.
+     * Retrieves the votes a user has had cast on their songs, along with some aggregate data.
      *
      * @param {integer} userID - The ID of the user to look up
      * @returns {Promise} A promise for an object in the form
      *
      * {
      *     woots: 123,
-     *     mehs: 321
+     *     mehs: 321,
+     *     votes: [
+     *          {
+     *              userID: 6017451,
+     *              username: "beefy",
+     *              videoID: "Jz8c17upEwM",
+     *              videoTitle: "Bastion - Build That Wall",
+     *              voteDate: "2015-04-25 05:02:09",
+     *              vote: 1
+     *          },
+     *          ...
+     *     ]
      * }
      */
     this.getNumberOfIncomingVotesForUser = function(userID) {
         return dbPromise.then(function(db) {
             return new Promise(function(resolve, reject) {
                 GET_INCOMING_VOTES_FOR_USER_STMT.all([userID], function(err, rows) {
-                    var obj = { woots: 0, mehs: 0 };
                     if (err) {
                         LOG.error("An error occurred while querying for incoming votes for userID={}: {}", userID, err);
-                        resolve(obj);
+                        reject(err);
                         return;
                     }
 
-                    if (rows.length > 0) {
-                        if (rows[0].vote === -1) {
-                            obj.mehs = rows[0].num_votes;
-                        }
-                        else {
-                            obj.woots = rows[0].num_votes;
-                        }
-                    }
+                    var obj = { woots: 0, mehs: 0, votes: rows };
 
-                    if (rows.length > 1) {
-                        if (rows[1].vote === -1) {
-                            obj.mehs = rows[1].num_votes;
+                    rows.forEach(function(vote) {
+                        if (vote.vote === 1) {
+                            obj.woots++;
                         }
                         else {
-                            obj.woots = rows[1].num_votes;
+                            obj.mehs++;
                         }
-                    }
+                    });
 
                     resolve(obj);
                 });
@@ -216,44 +219,47 @@ function SqliteDao(dbFilePath) {
     };
 
     /**
-     * Retrieves how many votes a user has cast, grouped by type.
+     * Retrieves the votes a user has cast, along with some aggregate data.
      *
      * @param {integer} userID - The ID of the user to look up
      * @returns {Promise} A promise for an object in the form
      *
      * {
      *     woots: 123,
-     *     mehs: 321
+     *     mehs: 321,
+     *     votes: [
+     *          {
+     *              userID: 6017451,
+     *              username: "beefy",
+     *              videoID: "Jz8c17upEwM",
+     *              videoTitle: "Bastion - Build That Wall",
+     *              voteDate: "2015-04-25 05:02:09",
+     *              vote: 1
+     *          },
+     *          ...
+     *     ]
      * }
      */
     this.getNumberOfVotesCastByUser = function(userID) {
         return dbPromise.then(function(db) {
             return new Promise(function(resolve, reject) {
                 GET_OUTGOING_VOTES_FOR_USER_STMT.all([userID], function(err, rows) {
-                    var obj = { woots: 0, mehs: 0 };
                     if (err) {
                         LOG.error("An error occurred while querying for votes cast by userID={}: {}", userID, err);
-                        resolve(obj);
+                        reject(err);
                         return;
                     }
 
-                    if (rows.length > 0) {
-                        if (rows[0].vote === -1) {
-                            obj.mehs = rows[0].num_votes;
-                        }
-                        else {
-                            obj.woots = rows[0].num_votes;
-                        }
-                    }
+                    var obj = { woots: 0, mehs: 0, votes: rows };
 
-                    if (rows.length > 1) {
-                        if (rows[1].vote === -1) {
-                            obj.mehs = rows[1].num_votes;
+                    rows.forEach(function(vote) {
+                        if (vote.vote === 1) {
+                            obj.woots++;
                         }
                         else {
-                            obj.woots = rows[1].num_votes;
+                            obj.mehs++;
                         }
-                    }
+                    });
 
                     resolve(obj);
                 });
@@ -272,10 +278,14 @@ function SqliteDao(dbFilePath) {
         return dbPromise.then(function(db) {
             return new Promise(function(resolve, reject) {
                 GET_USER_STMT.get([userID], function(err, row) {
-                    LOG.info("err: {}, row: {}", err, row);
                     if (err) {
                         LOG.error("An error occurred while querying userID={}: {}", userID, err);
                         reject(err);
+                        return;
+                    }
+
+                    if (!row) {
+                        resolve(null);
                         return;
                     }
 

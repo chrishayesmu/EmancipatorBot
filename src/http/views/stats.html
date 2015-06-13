@@ -9,6 +9,7 @@
 
         <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.4/d3.min.js"></script>
         <script src="/d3pie.min.js"></script>
+        <script src="https://www.google.com/jsapi"></script>
         <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     </head>
@@ -19,31 +20,71 @@
         <div class="panel panel-default votes-panel">
             <h3 class="panel-heading votes-heading">Votes cast</h3>
             <div class="panel-body">
-                <p>Woots: {{outgoingVotes.woots}}</p>
-                <p>Mehs: {{outgoingVotes.mehs}}</p>
+                <p><strong>{{outgoingVotesObj.woots}} woots / {{outgoingVotesObj.mehs}} mehs</strong></p>
                 <div id="outgoingVotesPieChart"></div>
+                <h3>Top 10 pluggers you vote on</h3>
+                <div id="outgoingVotesBarChart"></div>
             </div>
         </div>
         <div class="panel panel-default votes-panel">
             <h3 class="panel-heading votes-heading">Votes received</h3>
             <div class="panel-body">
-                <p>Woots: {{incomingVotes.woots}}</p>
-                <p>Mehs: {{incomingVotes.mehs}}</p>
+                <p><strong>{{incomingVotesObj.woots}} woots / {{incomingVotesObj.mehs}} mehs</strong></p>
                 <div id="incomingVotesPieChart"></div>
+                <h3>Top 10 pluggers who vote on you</h3>
+                <div id="incomingVotesBarChart"></div>
             </div>
         </div>
 
         <script src="/stats.js"></script>
         <script>
-            var incomingVotes = {
-                mehs: {{incomingVotes.mehs}},
-                woots: {{incomingVotes.woots}}
-            };
+            var incomingVotes = {{{incomingVotes}}};
+            var outgoingVotes = {{{outgoingVotes}}};
 
-            var outgoingVotes = {
-                mehs: {{outgoingVotes.mehs}},
-                woots: {{outgoingVotes.woots}}
-            };
+            google.load("visualization", "1.0", { "packages": [ "corechart" ] });
+            google.setOnLoadCallback(draw);
+
+            function draw() {
+                var outgoingData = {{{outgoingVotesBarGraphData}}};
+                var incomingData = {{{incomingVotesBarGraphData}}};
+
+                var options = {
+                    chartArea: {
+                        bottom: 0,
+                        height: 350,
+                        right: 0,
+                        top: 30
+                    },
+                    colors: [ "green", "red" ],
+                    legend: { position: "top", maxLines: 1 },
+                    hAxis: { viewWindow: {} },
+                    height: 400,
+                    width: 525,
+                    isStacked: true,
+                };
+
+                var reductionFunc = function(max, current) {
+                    if (typeof current[1] === "number" && typeof current[2] === "number") {
+                        return Math.max(max, current[1] + current[2]);
+                    }
+                    else {
+                        return max;
+                    }
+                };
+
+                var outgoingDataTable = google.visualization.arrayToDataTable(outgoingData);
+                var outgoingChart = new google.visualization.BarChart(document.getElementById("outgoingVotesBarChart"));
+                var outgoingMaxValue = outgoingData.reduce(reductionFunc, 0);
+
+                var incomingDataTable = google.visualization.arrayToDataTable(incomingData);
+                var incomingChart = new google.visualization.BarChart(document.getElementById("incomingVotesBarChart"));
+                var incomingMaxValue = incomingData.reduce(reductionFunc, 0);
+
+                options.hAxis.viewWindow.max = outgoingMaxValue;
+                outgoingChart.draw(outgoingDataTable, options);
+                options.hAxis.viewWindow.max = incomingMaxValue;
+                incomingChart.draw(incomingDataTable, options);
+            }
 
             createPieCharts(incomingVotes, outgoingVotes);
         </script>

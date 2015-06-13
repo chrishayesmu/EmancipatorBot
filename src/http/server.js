@@ -10,8 +10,12 @@ var app;
 var dao;
 
 function start(globalObject) {
+    var hostname = globalObject.config.Emancipator.HttpServer.hostname;
+    var port = globalObject.config.Emancipator.HttpServer.port;
+
     dao = SqliteDao.getInstance(globalObject.config.Emancipator.databaseFile);
 
+    LOG.info("Attempting to start HTTP server ..");
     app = express();
     app.engine("html", consolidate.mustache);
     app.set("view engine", "html");
@@ -22,7 +26,8 @@ function start(globalObject) {
 
     app.get("/stats/:userID/", handleStatsRequest);
 
-    app.listen(8080);
+    app.listen(port);
+    LOG.info("Started HTTP server listening on hostname {} and port {}", hostname, port);
 }
 
 function handleStatsRequest(request, response) {
@@ -42,27 +47,74 @@ function handleStatsRequest(request, response) {
         var numberOfPlays = values[2];
         var requestedUser = values[3];
 
-        var incomingWootPercentage = _calculateWootPercentage(incomingVotesObj);
-        var outgoingWootPercentage = _calculateWootPercentage(votesCastObj);
+        if (!incomingVotesObj || !votesCastObj || !numberOfPlays || !requestedUser) {
+            response.send("No user found with ID " + userID);
+            return;
+        }
+
+        // TODO: keep raw data here and move all the processing to UI
+        var barGraphBase = [
+            [ "User", "Woots", "Mehs" ]
+        ];
+
+        var outgoingVotesBarGraphData = barGraphBase.concat(groupVoteData(votesCastObj));
+        var incomingVotesBarGraphData = barGraphBase.concat(groupVoteData(incomingVotesObj));
 
         response.render("stats", {
-            incomingVotes: incomingVotesObj,
+            incomingVotes: JSON.stringify(incomingVotesObj),
+            incomingVotesBarGraphData: JSON.stringify(incomingVotesBarGraphData),
+            incomingVotesObj: incomingVotesObj,
             numberOfPlays: numberOfPlays,
-            outgoingVotes: votesCastObj,
+            outgoingVotes: JSON.stringify(votesCastObj),
+            outgoingVotesBarGraphData: JSON.stringify(outgoingVotesBarGraphData),
+            outgoingVotesObj: votesCastObj,
             userID: userID,
             username: requestedUser.username
         });
     });
 }
 
-function _calculateWootPercentage(votesObj) {
-    var percentage = 0.0;
-    if (votesObj.woots > 0) {
-        percentage = votesObj.woots / (votesObj.woots + votesObj.mehs);
+function groupVoteData(votes) {
+    var data = {};
+
+    votes.votes.forEach(function(vote) {
+        if (!data[vote.userID]) {
+            data[vote.userID] = {
+                username: vote.username,
+                userID: vote.userID,
+                woots: 0,
+                mehs: 0
+            };
+        }
+
+        if (vote.vote === 1) {
+            data[vote.userID].woots++;
+        }
+        else {
+            data[vote.userID].mehs++;
+        }
+    });
+
+    var arr = [];
+    Object.keys(data).forEach(function(key) {
+        arr.push(data[key]);
+    });
+
+    arr = arr.sort(function(item1, item2) {
+        return (item2.woots + item2.mehs) - (item1.woots + item1.mehs);
+    });
+
+    // Take only the top 10 users and turn them into an array appropriate for graphing
+    var output = [];
+    for (var i = 0; i < 10 && i < arr.length; i++) {
+        output.push([
+            arr[i].username,
+            arr[i].woots,
+            arr[i].mehs
+        ]);
     }
 
-    // Round to one decimal place
-    return Math.round(percentage * 1000) / 10;
+    return output;
 }
 
 exports.start = start;

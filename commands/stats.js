@@ -5,9 +5,18 @@ var SqliteDao = require("../src/db/SqliteDao");
 var LOG = new PlugBotBase.Log("StatsCommand");
 
 var dao;
+var statsUrl;
 
 function init(globalObject) {
+    var serverConfig = globalObject.config.Emancipator.HttpServer;
     dao = SqliteDao.getInstance(globalObject.config.Emancipator.databaseFile);
+
+    statsUrl = "http://" + serverConfig.hostname;
+    if (serverConfig.port != 80) {
+        statsUrl = statsUrl + ":" + serverConfig.port;
+    }
+
+    statsUrl = statsUrl + "/stats/{{userId}}";
 }
 
 function handler(event, globalObject) {
@@ -50,12 +59,15 @@ function handler(event, globalObject) {
                 dao.getNumberOfPlaysByUser(requestedUser.userID).then(function(numberOfPlays) {
                     var incomingWootPercentage = _calculateWootPercentage(incomingVotesObj);
                     var outgoingWootPercentage = _calculateWootPercentage(votesCastObj);
+                    var userUrl = statsUrl.replace("{{userId}}", requestedUser.userID);
 
                     bot.sendChat("{} has played {} songs to EmancipatorBot, receiving {} woots and {} mehs ({}% woot rate).",
                                   requestedUser.username, numberOfPlays, incomingVotesObj.woots, incomingVotesObj.mehs, incomingWootPercentage);
 
                     bot.sendChat("{} has cast {} woots and {} mehs ({}% woot rate).",
                                   requestedUser.username, votesCastObj.woots, votesCastObj.mehs, outgoingWootPercentage);
+
+                    bot.sendChat("View more at {}", userUrl);
                 });
             });
         });
