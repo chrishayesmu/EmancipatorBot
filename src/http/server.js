@@ -8,10 +8,13 @@ var LOG = new Log("HttpServer");
 
 var app;
 var dao;
+var statsUrl;
+var statsHref = "<a href='{{url}}'>{{username}}</a>";
 
 function start(globalObject) {
     var hostname = globalObject.config.Emancipator.HttpServer.hostname;
     var port = globalObject.config.Emancipator.HttpServer.port;
+    statsUrl = createUrl(hostname, port) + "/stats/{{userID}}";
 
     dao = SqliteDao.getInstance(globalObject.config.Emancipator.databaseFile);
 
@@ -54,7 +57,7 @@ function handleStatsRequest(request, response) {
 
         // TODO: keep raw data here and move all the processing to UI
         var barGraphBase = [
-            [ "User", "Woots", "Mehs" ]
+            [ "User", "Woots", "Mehs", { role: "annotation" } ]
         ];
 
         var outgoingVotesBarGraphData = barGraphBase.concat(groupVoteData(votesCastObj));
@@ -110,11 +113,26 @@ function groupVoteData(votes) {
         output.push([
             arr[i].username,
             arr[i].woots,
-            arr[i].mehs
+            arr[i].mehs,
+            statsUrl.replace("{{userID}}", arr[i].userID)
         ]);
     }
 
     return output;
+}
+
+function createUrl(hostname, port) {
+    var url = "http://" + hostname;
+    if (port != 80) {
+        url = url + ":" + port;
+    }
+
+    return url
+}
+
+function formatUsernameAsLink(username, userID) {
+    var url = statsUrl.replace("{{userID}}", userID);
+    return statsHref.replace("{{url}}", url).replace("{{username}}", username);
 }
 
 exports.start = start;

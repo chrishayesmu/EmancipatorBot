@@ -67,7 +67,18 @@
                         isStacked: true,
                     };
 
-                    var reductionFunc = function(max, current) {
+                    var dataTable = google.visualization.arrayToDataTable(data);
+                    var dataView = new google.visualization.DataView(dataTable);
+                    dataView.setColumns([0, 1, 2]);
+
+                    var chart = new google.visualization.BarChart(element);
+                    var maxValue = data.reduce(getMax, 0);
+
+                    options.hAxis.viewWindow.max = maxValue;
+                    chart.draw(dataView, options);
+                    google.visualization.events.addListener(chart, 'click', onRowSelected);
+
+                    function getMax(max, current) {
                         if (typeof current[1] === "number" && typeof current[2] === "number") {
                             return Math.max(max, current[1] + current[2]);
                         }
@@ -76,12 +87,28 @@
                         }
                     };
 
-                    var dataTable = google.visualization.arrayToDataTable(data);
-                    var chart = new google.visualization.BarChart(element);
-                    var maxValue = data.reduce(reductionFunc, 0);
+                    function onRowSelected(e) {
+                        var parts = e.targetID.split("#");
+                        if (parts.length < 3) {
+                            return; // they didn't click on a label or bar
+                        }
 
-                    options.hAxis.viewWindow.max = maxValue;
-                    chart.draw(dataTable, options);
+                        var row;
+
+                        // Clicking a bar has the form "bar#col#row"
+                        if (parts.length === 3) {
+                            row = parts[2];
+                        }
+                        else if (parts.length === 4) {
+                            // Clicking a label has the form "vAxis#col#Label#row", where "Label#" appears to be literal
+                            row = parts[3];
+                        }
+
+                        // Google's API won't accept a string so convert to number
+                        row = +row;
+
+                        window.location = dataTable.getValue(row, 3);
+                    }
                 }
             }
 
