@@ -25,7 +25,7 @@ function handler(event, globalObject) {
 
     // Stats is run for a specific user if provided, or else for the user who ran the command
     if (event.args && event.args.length > 0) {
-        username = event.args[0];
+        username = event.args.join(" ");
 
         if (username.indexOf("@") === 0) {
             username = username.substring(1);
