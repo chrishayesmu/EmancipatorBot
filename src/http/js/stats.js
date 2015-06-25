@@ -6,6 +6,7 @@ function convertPlaysToTableFormat(plays) {
         var play = plays[i];
         if (!map[play.videoID]) {
             map[play.videoID] = {
+                knownPlayIDs: [],
                 mehs: 0,
                 plays: 0,
                 title: videoDisplayBase.replace("{{videoID}}", play.videoID).replace("{{title}}", play.title),
@@ -13,7 +14,11 @@ function convertPlaysToTableFormat(plays) {
             };
         }
 
-        map[play.videoID].plays++;
+        // Make sure this play hasn't been seen previously
+        if ($.inArray(play.playID, map[play.videoID].knownPlayIDs) < 0) {
+            map[play.videoID].knownPlayIDs.push(play.playID);
+            map[play.videoID].plays++;
+        }
 
         var vote = play.vote;
 
