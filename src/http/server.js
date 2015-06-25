@@ -40,17 +40,17 @@ function handleStatsRequest(request, response) {
     var promises = [
         dao.getIncomingVotesForUser(userID),
         dao.getVotesCastByUser(userID),
-        dao.getNumberOfPlaysByUser(userID),
+        dao.getPlaysByUser(userID),
         dao.getUser(userID)
     ];
 
     Promise.all(promises).then(function(values) {
         var incomingVotesObj = values[0];
         var votesCastObj = values[1];
-        var numberOfPlays = values[2];
+        var plays = values[2];
         var requestedUser = values[3];
 
-        if (!incomingVotesObj || !votesCastObj || !numberOfPlays || !requestedUser) {
+        if (!incomingVotesObj || !votesCastObj || !plays || !requestedUser) {
             response.send("No user found with ID " + userID);
             return;
         }
@@ -67,10 +67,11 @@ function handleStatsRequest(request, response) {
             incomingVotes: JSON.stringify(incomingVotesObj),
             incomingVotesBarGraphData: JSON.stringify(incomingVotesBarGraphData),
             incomingVotesObj: incomingVotesObj,
-            numberOfPlays: numberOfPlays,
+            numberOfPlays: plays.length,
             outgoingVotes: JSON.stringify(votesCastObj),
             outgoingVotesBarGraphData: JSON.stringify(outgoingVotesBarGraphData),
             outgoingVotesObj: votesCastObj,
+            plays: JSON.stringify(plays),
             userID: userID,
             username: requestedUser.username
         });

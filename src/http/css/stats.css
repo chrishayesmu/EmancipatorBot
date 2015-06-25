@@ -1,3 +1,9 @@
+.table-container {
+    clear: both;
+    margin-left: 3%;
+    width: 93%;
+}
+
 .votes-panel {
     float: left;
     margin-left: 3%;

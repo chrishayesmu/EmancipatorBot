@@ -35,21 +35,53 @@
                 <div id="incomingVotesBarChart"></div>
             </div>
         </div>
+        <br />
+        <div class="panel panel-default table-container">
+            <h3 class="panel-heading votes-heading">Your play history (links only work for YouTube)</h3>
+            <div class="panel-body">
+                <div id="playHistoryTable"></div>
+            </div>
+        </div>
 
         <script src="/stats.js"></script>
         <script>
             var incomingVotes = {{{incomingVotes}}};
             var outgoingVotes = {{{outgoingVotes}}};
 
-            google.load("visualization", "1.0", { "packages": [ "corechart" ] });
+            google.load("visualization", "1.0", { "packages": [ "corechart", "table" ] });
             google.setOnLoadCallback(draw);
 
             function draw() {
-                var outgoingData = {{{outgoingVotesBarGraphData}}};
-                var incomingData = {{{incomingVotesBarGraphData}}};
+                var outgoingVotesData = {{{outgoingVotesBarGraphData}}};
+                var incomingVotesData = {{{incomingVotesBarGraphData}}};
+                var plays = convertPlaysToTableFormat({{{plays}}});
 
-                drawVotingBarChart(outgoingData, document.getElementById("outgoingVotesBarChart"));
-                drawVotingBarChart(incomingData, document.getElementById("incomingVotesBarChart"));
+                drawPlaysTable(plays, document.getElementById("playHistoryTable"));
+                drawVotingBarChart(outgoingVotesData, document.getElementById("outgoingVotesBarChart"));
+                drawVotingBarChart(incomingVotesData, document.getElementById("incomingVotesBarChart"));
+
+                function drawPlaysTable(data, element) {
+                    var dataTable = new google.visualization.DataTable();
+                    dataTable.addColumn("string", "Title");
+                    dataTable.addColumn("number", "Plays");
+                    dataTable.addColumn("number", "Total woots");
+                    dataTable.addColumn("number", "Total mehs");
+                    dataTable.addRows(data);
+
+                    var table = new google.visualization.Table(element);
+                    table.draw(dataTable, {
+                        allowHtml: true,
+                        page: "enable",
+                        pageSize: 15,
+                        showRowNumber: true,
+                        sortAscending: false,
+                        sortColumn: 1,
+                        width: "98%"
+                    });
+
+                    // Google's CSS is no good; override an attribute for them
+                    $(element).find("div > .top-level").css("overflow", "visible");
+                }
 
                 function drawVotingBarChart(data, element) {
                     var options = {

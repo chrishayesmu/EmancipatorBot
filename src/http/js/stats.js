@@ -1,3 +1,45 @@
+function convertPlaysToTableFormat(plays) {
+    var map = {};
+    var videoDisplayBase = "<a href='https://www.youtube.com/watch?v={{videoID}}'>{{title}}</a>"; // TODO support soundcloud
+
+    for (var i = 0; i < plays.length; i++) {
+        var play = plays[i];
+        if (!map[play.videoID]) {
+            map[play.videoID] = {
+                mehs: 0,
+                plays: 0,
+                title: videoDisplayBase.replace("{{videoID}}", play.videoID).replace("{{title}}", play.title),
+                woots: 0
+            };
+        }
+
+        map[play.videoID].plays++;
+
+        var vote = play.vote;
+
+        if (vote === 1) {
+            map[play.videoID].woots++;
+        }
+        else if (vote === -1) {
+            map[play.videoID].mehs++;
+        }
+    }
+
+    var rows = [];
+
+    for (var key in map) {
+        var data = map[key];
+        rows.push([
+            data.title,
+            data.plays,
+            data.woots,
+            data.mehs
+        ]);
+    }
+
+    return rows;
+}
+
 function createPieCharts(incomingVotes, outgoingVotes) {
     // Create pie chart for number of incoming votes
     new d3pie("incomingVotesPieChart", {

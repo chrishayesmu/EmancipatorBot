@@ -34,7 +34,7 @@ var CREATE_TABLE_MEDIA_VOTES_SQL = "CREATE TABLE media_votes (\n"
 var FIND_SIMILAR_USERS_SQL = "SELECT id, username FROM users WHERE username LIKE '%' || ? || '%'";
 var GET_INCOMING_VOTES_FOR_USER_SQL = "SELECT mv.user_id AS userID, u.username AS username, mp.title AS videoTitle, mp.video_id AS videoID, mv.voted_on AS voteDate, vote FROM (media_votes mv JOIN media_plays mp USING (play_id)) JOIN users u ON u.id = mv.user_id WHERE mp.user_id = ?";
 var GET_OUTGOING_VOTES_FOR_USER_SQL = "SELECT mp.user_id AS userID, u.username AS username, mp.title AS videoTitle, mp.video_id AS videoID, mv.voted_on AS voteDate, vote FROM (media_votes mv JOIN media_plays mp USING (play_id)) JOIN users u ON u.id = mp.user_id WHERE mv.user_id = ?";
-var GET_TOTAL_PLAYS_FOR_USER_SQL = "SELECT COUNT(*) as num_plays FROM media_plays WHERE user_id = ?";
+var GET_PLAYS_FOR_USER_SQL = "SELECT mp.play_id AS playID, mp.video_id AS videoID, mp.title, mp.duration AS durationInSeconds, mp.played_on AS playDate, mv.user_id AS votingUserID, mv.voted_on AS votingDate, mv.vote FROM media_plays mp LEFT JOIN media_votes mv USING (play_id) WHERE mp.user_id = ?";
 var GET_USER_SQL = "SELECT id, username FROM users WHERE id = ?";
 var INSERT_MEDIA_PLAY_SQL = "INSERT INTO media_plays (video_id, user_id, title, duration, played_on) VALUES (?, ?, ?, ?, ?)";
 var INSERT_MEDIA_VOTE_SQL = "INSERT OR REPLACE INTO media_votes (play_id, user_id, vote) VALUES (?, ?, ?)";
@@ -70,7 +70,7 @@ function SqliteDao(dbFilePath) {
     var FIND_SIMILAR_USERS_STMT;
     var GET_INCOMING_VOTES_FOR_USER_STMT;
     var GET_OUTGOING_VOTES_FOR_USER_STMT;
-    var GET_TOTAL_PLAYS_FOR_USER_STMT;
+    var GET_PLAYS_FOR_USER_STMT;
     var GET_USER_STMT;
     var INSERT_MEDIA_PLAY_STATEMENT;
     var INSERT_MEDIA_VOTE_STATEMENT;
@@ -102,7 +102,7 @@ function SqliteDao(dbFilePath) {
         FIND_SIMILAR_USERS_STMT = db.prepare(FIND_SIMILAR_USERS_SQL);
         GET_INCOMING_VOTES_FOR_USER_STMT = db.prepare(GET_INCOMING_VOTES_FOR_USER_SQL);
         GET_OUTGOING_VOTES_FOR_USER_STMT = db.prepare(GET_OUTGOING_VOTES_FOR_USER_SQL);
-        GET_TOTAL_PLAYS_FOR_USER_STMT = db.prepare(GET_TOTAL_PLAYS_FOR_USER_SQL);
+        GET_PLAYS_FOR_USER_STMT = db.prepare(GET_PLAYS_FOR_USER_SQL);
         GET_USER_STMT = db.prepare(GET_USER_SQL);
         INSERT_MEDIA_PLAY_STATEMENT = db.prepare(INSERT_MEDIA_PLAY_SQL);
         INSERT_MEDIA_VOTE_STATEMENT = db.prepare(INSERT_MEDIA_VOTE_SQL);
@@ -197,22 +197,17 @@ function SqliteDao(dbFilePath) {
      * @param {integer} userID - The ID of the user to look up
      * @returns {Promise} A promise for the number of plays the user has
      */
-    this.getNumberOfPlaysByUser = function(userID) {
+    this.getPlaysByUser = function(userID) {
         return dbPromise.then(function(db) {
             return new Promise(function(resolve, reject) {
-                GET_TOTAL_PLAYS_FOR_USER_STMT.all([userID], function(err, rows) {
+                GET_PLAYS_FOR_USER_STMT.all([userID], function(err, rows) {
                     if (err) {
                         LOG.error("An error occurred while querying for number of plays by userID={}: {}", userID, err);
-                        resolve(0);
+                        reject(err);
                         return;
                     }
 
-                    if (rows.length > 0) {
-                        resolve(rows[0].num_plays);
-                    }
-                    else {
-                        resolve(0);
-                    }
+                    resolve(rows);
                 });
             });
         });
