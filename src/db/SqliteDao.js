@@ -164,7 +164,7 @@ function SqliteDao(dbFilePath) {
      *     ]
      * }
      */
-    this.getNumberOfIncomingVotesForUser = function(userID) {
+    this.getIncomingVotesForUser = function(userID) {
         return dbPromise.then(function(db) {
             return new Promise(function(resolve, reject) {
                 GET_INCOMING_VOTES_FOR_USER_STMT.all([userID], function(err, rows) {
@@ -240,7 +240,7 @@ function SqliteDao(dbFilePath) {
      *     ]
      * }
      */
-    this.getNumberOfVotesCastByUser = function(userID) {
+    this.getVotesCastByUser = function(userID) {
         return dbPromise.then(function(db) {
             return new Promise(function(resolve, reject) {
                 GET_OUTGOING_VOTES_FOR_USER_STMT.all([userID], function(err, rows) {

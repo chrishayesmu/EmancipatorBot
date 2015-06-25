@@ -54,8 +54,8 @@ function handler(event, globalObject) {
             return;
         }
 
-        dao.getNumberOfIncomingVotesForUser(requestedUser.userID).then(function(incomingVotesObj) {
-            dao.getNumberOfVotesCastByUser(requestedUser.userID).then(function(votesCastObj) {
+        dao.getIncomingVotesForUser(requestedUser.userID).then(function(incomingVotesObj) {
+            dao.getVotesCastByUser(requestedUser.userID).then(function(votesCastObj) {
                 dao.getNumberOfPlaysByUser(requestedUser.userID).then(function(numberOfPlays) {
                     var incomingWootPercentage = _calculateWootPercentage(incomingVotesObj);
                     var outgoingWootPercentage = _calculateWootPercentage(votesCastObj);

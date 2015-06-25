@@ -38,8 +38,8 @@ function handleStatsRequest(request, response) {
     LOG.info("Received stats request for userID {}", userID);
 
     var promises = [
-        dao.getNumberOfIncomingVotesForUser(userID),
-        dao.getNumberOfVotesCastByUser(userID),
+        dao.getIncomingVotesForUser(userID),
+        dao.getVotesCastByUser(userID),
         dao.getNumberOfPlaysByUser(userID),
         dao.getUser(userID)
     ];
