@@ -80,7 +80,15 @@
                     });
 
                     // Google's CSS is no good; override an attribute for them
-                    $(element).find("div > .top-level").css("overflow", "visible");
+                    function removeOverflow() {
+                        $(element).find("div > .top-level").css("overflow", "visible");
+                    }
+
+                    removeOverflow();
+
+                    // .. and also do it every time the table redraws
+                    google.visualization.events.addListener(table, 'page', removeOverflow);
+                    google.visualization.events.addListener(table, 'sort', removeOverflow);
                 }
 
                 function drawVotingBarChart(data, element) {
