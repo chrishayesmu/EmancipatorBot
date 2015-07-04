@@ -56,13 +56,13 @@ function handler(event, globalObject) {
 
         dao.getIncomingVotesForUser(requestedUser.userID).then(function(incomingVotesObj) {
             dao.getVotesCastByUser(requestedUser.userID).then(function(votesCastObj) {
-                dao.getPlaysByUser(requestedUser.userID).then(function(plays) {
+                dao.getNumberOfPlaysByUser(requestedUser.userID).then(function(numberOfPlays) {
                     var incomingWootPercentage = _calculateWootPercentage(incomingVotesObj);
                     var outgoingWootPercentage = _calculateWootPercentage(votesCastObj);
                     var userUrl = statsUrl.replace("{{userId}}", requestedUser.userID);
 
                     bot.sendChat("{} has played {} songs to EmancipatorBot, receiving {} woots and {} mehs ({}% woot rate).",
-                                  requestedUser.username, plays.length, incomingVotesObj.woots, incomingVotesObj.mehs, incomingWootPercentage);
+                                  requestedUser.username, numberOfPlays, incomingVotesObj.woots, incomingVotesObj.mehs, incomingWootPercentage);
 
                     bot.sendChat("{} has cast {} woots and {} mehs ({}% woot rate).",
                                   requestedUser.username, votesCastObj.woots, votesCastObj.mehs, outgoingWootPercentage);
