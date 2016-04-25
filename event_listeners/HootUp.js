@@ -3,9 +3,9 @@
  * it's time to HOOT THE FUCK UP.
  */
 
-var PlugBotBase = require("plugbotbase");
+var DubBotBase = require("dubbotbase");
 
-var LOG = new PlugBotBase.Log("HootUp");
+var LOG = new DubBotBase.Log("HootUp");
 
 function handleUserJoinEvent(event, globalObject) {
     var bot = globalObject.bot;
@@ -13,7 +13,7 @@ function handleUserJoinEvent(event, globalObject) {
     if (event.userID === 3866399) { // hoot's user ID
         LOG.info("MOTHERFUCKING HOOT JOINED THE ROOM AND WE ARE HOOTING UP");
 
-        // This used to be an ASCII owl, but since plug doesn't support consecutive
+        // This used to be an ASCII owl, but since dub doesn't support consecutive
         // spaces, there's now a bunch of unicode spaces in there, which make it
         // really hard to read
         bot.sendChat("\u2002,\u2002\u2002\u2002\u2002\u2002,\u2002\u2002\u2002 IT IS TIME");
@@ -25,4 +25,4 @@ function handleUserJoinEvent(event, globalObject) {
     }
 }
 
-module.exports[PlugBotBase.Event.USER_JOIN] = handleUserJoinEvent;
+module.exports[DubBotBase.Event.USER_JOIN] = handleUserJoinEvent;

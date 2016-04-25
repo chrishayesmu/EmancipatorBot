@@ -1,7 +1,7 @@
 {
     "PlugBotBase" : {
         "logAllEvents" : true,
-        "roomName" : "7476651300257795202"
+        "roomName" : "comfy-vidya-games"
     },
     "Emancipator" : {
         "databaseFile" : "emancipator.db",

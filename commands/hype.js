@@ -1,7 +1,3 @@
-var PlugBotBase = require("plugbotbase");
-
-var LOG = new PlugBotBase.Log("HypeCommand");
-
 function handler(event, globalObject) {
     var bot = globalObject.bot;
     var message = globalObject.config.Emancipator.Hype && globalObject.config.Emancipator.Hype.message;

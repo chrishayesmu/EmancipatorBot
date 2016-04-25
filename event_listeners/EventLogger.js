@@ -6,11 +6,11 @@
  */
 "use strict";
 
-var PlugBotBase = require("plugbotbase");
-var ChatType = PlugBotBase.ChatType;
-var Event = PlugBotBase.Event;
+var DubBotBase = require("dubbotbase");
+var ChatType = DubBotBase.ChatType;
+var Event = DubBotBase.Event;
 
-var LOG = new PlugBotBase.Log("EventLogger");
+var LOG = new DubBotBase.Log("EventLogger");
 
 function advanceHandler(event, globalObject) {
     LOG.info("The DJ has changed to {} playing \"{}\".", event.incomingDJ.username, event.media.fullTitle);

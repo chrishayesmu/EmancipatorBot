@@ -1,6 +1,6 @@
-var PlugBotBase = require("plugbotbase");
+var DubBotBase = require("dubbotbase");
 
-var LOG = new PlugBotBase.Log("AutowootDetection");
+var LOG = new DubBotBase.Log("AutowootDetection");
 
 function handleVoteEvent(event, globalObject) {
     if (globalObject.config.Emancipator.AutowootDetection.ignoreAutowooting) {
@@ -18,4 +18,4 @@ function handleVoteEvent(event, globalObject) {
     }
 }
 
-module.exports[PlugBotBase.Event.VOTE] = handleVoteEvent;
+module.exports[DubBotBase.Event.VOTE] = handleVoteEvent;

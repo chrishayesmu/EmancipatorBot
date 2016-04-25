@@ -1,6 +1,6 @@
 var consolidate = require("consolidate");
 var express = require("express");
-var Log = require("plugbotbase").Log;
+var Log = require("dubbotbase").Log;
 var Mustache = require("mustache");
 var SqliteDao = require("../db/SqliteDao");
 

@@ -5,9 +5,9 @@
  * skip the song.
  */
 
-var PlugBotBase = require("plugbotbase");
+var DubBotBase = require("dubbotbase");
 
-var LOG = new PlugBotBase.Log("AutoSkipMehhedSongs");
+var LOG = new DubBotBase.Log("AutoSkipMehhedSongs");
 
 var alreadyWarnedOnCurrentSong = false;
 
@@ -66,6 +66,6 @@ function skipIfAllowed(globalObject) {
     }
 }
 
-module.exports[PlugBotBase.Event.ADVANCE] = handleAdvanceEvent;
-module.exports[PlugBotBase.Event.VOTE] = handleVoteEvent;
+module.exports[DubBotBase.Event.ADVANCE] = handleAdvanceEvent;
+module.exports[DubBotBase.Event.VOTE] = handleVoteEvent;
 module.exports.init = init;

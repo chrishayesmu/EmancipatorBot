@@ -1,8 +1,8 @@
 var exec = require('child_process').exec;
 
-var PlugBotBase = require("plugbotbase");
+var DubBotBase = require("dubbotbase");
 
-var LOG = new PlugBotBase.Log("FortuneCommand");
+var LOG = new DubBotBase.Log("FortuneCommand");
 
 function handler(event, globalObject) {
     LOG.info("Fortune command was called by {}", event.username);

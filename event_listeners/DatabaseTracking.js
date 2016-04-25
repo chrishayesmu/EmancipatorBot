@@ -7,12 +7,12 @@
  *   Each vote that occurs
  */
 
-var PlugBotBase = require("plugbotbase");
-var Event = PlugBotBase.Event;
+var DubBotBase = require("dubbotbase");
+var Event = DubBotBase.Event;
 
 var SqliteDao = require("../src/db/SqliteDao");
 
-var LOG = new PlugBotBase.Log("DatabaseTracking");
+var LOG = new DubBotBase.Log("DatabaseTracking");
 
 var dao;
 

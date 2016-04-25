@@ -6,9 +6,9 @@
  * song and/or restore the skipped DJ to the top of the wait list.
  */
 
-var PlugBotBase = require("plugbotbase");
+var DubBotBase = require("dubbotbase");
 
-var LOG = new PlugBotBase.Log("DuplicatePlayDetection");
+var LOG = new DubBotBase.Log("DuplicatePlayDetection");
 
 // Since plug.dj's clocks don't always agree with ours,
 // and since some small amount of time can pass between the
@@ -81,4 +81,4 @@ function moveDjToTopIfAllowed(globalObject, userID) {
     }
 }
 
-module.exports[PlugBotBase.Event.ADVANCE] = handleAdvanceEvent;
+module.exports[DubBotBase.Event.ADVANCE] = handleAdvanceEvent;

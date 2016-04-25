@@ -1,7 +1,7 @@
 require("es6-promise");
 var sqlite3 = require("sqlite3");
 
-var Log = require("plugbotbase").Log;
+var Log = require("dubbotbase").Log;
 
 var LOG = new Log("SqliteDao");
 var INSTANCE = null;

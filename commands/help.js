@@ -1,6 +1,6 @@
-var PlugBotBase = require("plugbotbase");
+var DubBotBase = require("dubbotbase");
 
-var LOG = new PlugBotBase.Log("HelpCommand");
+var LOG = new DubBotBase.Log("HelpCommand");
 
 function handler(event, globalObject) {
     LOG.info("Help command was called by {}", event.username);

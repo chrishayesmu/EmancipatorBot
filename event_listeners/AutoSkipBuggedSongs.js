@@ -3,9 +3,9 @@
  * Can optionally force skip the broken song.
  */
 
-var PlugBotBase = require("plugbotbase");
+var DubBotBase = require("dubbotbase");
 
-var LOG = new PlugBotBase.Log("AutoSkipBuggedSongs");
+var LOG = new DubBotBase.Log("AutoSkipBuggedSongs");
 var ON_SKIP_MESSAGE = "This song is bugged and should have ended.";
 
 function handleAdvanceEvent(event, globalObject) {
@@ -41,4 +41,4 @@ function handleAdvanceEvent(event, globalObject) {
     }, timeToWaitBeforeSkippingInMs);
 }
 
-module.exports[PlugBotBase.Event.ADVANCE] = handleAdvanceEvent;
+module.exports[DubBotBase.Event.ADVANCE] = handleAdvanceEvent;

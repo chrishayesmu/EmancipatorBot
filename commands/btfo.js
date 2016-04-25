@@ -1,5 +1,3 @@
-var PlugBotBase = require("plugbotbase");
-
 function handler(event, globalObject) {
     var bot = globalObject.bot;
 

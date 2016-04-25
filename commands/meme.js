@@ -1,5 +1,3 @@
-var PlugBotBase = require("plugbotbase");
-
 var memes;
 
 function init(globalObject) {

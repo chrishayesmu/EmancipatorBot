@@ -1,8 +1,8 @@
-var PlugBotBase = require("plugbotbase");
+var DubBotBase = require("dubbotbase");
 
 var SqliteDao = require("../src/db/SqliteDao");
 
-var LOG = new PlugBotBase.Log("StatsCommand");
+var LOG = new DubBotBase.Log("StatsCommand");
 
 var dao;
 var statsUrl;
