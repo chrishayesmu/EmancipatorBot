@@ -34,6 +34,9 @@ function handleVoteEvent(event, globalObject) {
         alreadyWarnedOnCurrentSong = true;
         skipIfAllowed(globalObject);
     }
+    else if (numberOfMehs > 0) {
+        LOG.info("This song isn't ready to skip (meh % is at {} and there are {} mehs)", percentageOfRoomMehhing, numberOfMehs);
+    }
 }
 
 function init(globalObject) {
