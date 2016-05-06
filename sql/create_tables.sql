@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
 );
 
 CREATE TABLE IF NOT EXISTS media_plays (
-    play_id     INTEGER         NOT NULL    PRIMARY KEY,
+    play_id     INTEGER         NOT NULL    AUTO_INCREMENT  PRIMARY KEY,
     user_id     VARCHAR(30)     NOT NULL,
     video_id    VARCHAR(15)     NOT NULL,
     title       VARCHAR(200)    NOT NULL,
