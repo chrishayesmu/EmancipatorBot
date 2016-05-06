@@ -126,15 +126,15 @@ MysqlDao.prototype.getIncomingVotesForUser = function(userID) {
  */
 MysqlDao.prototype.getNumberOfPlaysByUser = function(userID) {
     return new Promise(function(resolve, reject) {
-        this.connection.query(GET_NUMBER_OF_PLAYS_FOR_USER_SQL, [userID], function(err, row) {
+        this.connection.query(GET_NUMBER_OF_PLAYS_FOR_USER_SQL, [userID], function(err, rows) {
             if (err) {
                 LOG.error("An error occurred while querying for number of plays by userID={}: {}", userID, err);
                 reject(err);
                 return;
             }
 
-            if (row) {
-                resolve(row.num_plays);
+            if (rows && rows.length > 0) {
+                resolve(rows[0].num_plays);
             }
             else {
                 resolve(0);
