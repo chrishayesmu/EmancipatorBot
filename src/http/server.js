@@ -2,7 +2,7 @@ var consolidate = require("consolidate");
 var express = require("express");
 var Log = require("dubbotbase").Log;
 var Mustache = require("mustache");
-var SqliteDao = require("../db/SqliteDao");
+var MysqlDao = require("../db/MysqlDao");
 
 var LOG = new Log("HttpServer");
 
@@ -16,7 +16,7 @@ function start(globalObject) {
     var port = globalObject.config.Emancipator.HttpServer.port;
     statsUrl = createUrl(hostname, port) + "/stats/{{userID}}";
 
-    dao = SqliteDao.getInstance(globalObject.config.Emancipator.databaseFile);
+    dao = new MysqlDao(globalObject.config.Emancipator.mysql);
 
     LOG.info("Attempting to start HTTP server ..");
     app = express();

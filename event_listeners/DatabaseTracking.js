@@ -10,14 +10,14 @@
 var DubBotBase = require("dubbotbase");
 var Event = DubBotBase.Event;
 
-var SqliteDao = require("../src/db/SqliteDao");
+var MysqlDao = require("../src/db/MysqlDao");
 
 var LOG = new DubBotBase.Log("DatabaseTracking");
 
 var dao;
 
 function init(globalObject) {
-    dao = SqliteDao.getInstance(globalObject.config.Emancipator.databaseFile);
+    dao = new MysqlDao(globalObject.config.Emancipator.mysql);
 }
 
 function handleAdvanceEvent(event, globalObject) {

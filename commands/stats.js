@@ -1,6 +1,6 @@
 var DubBotBase = require("dubbotbase");
 
-var SqliteDao = require("../src/db/SqliteDao");
+var MysqlDao = require("../src/db/MysqlDao");
 
 var LOG = new DubBotBase.Log("StatsCommand");
 
@@ -9,7 +9,7 @@ var statsUrl;
 
 function init(globalObject) {
     var serverConfig = globalObject.config.Emancipator.HttpServer;
-    dao = SqliteDao.getInstance(globalObject.config.Emancipator.databaseFile);
+    dao = new MysqlDao(globalObject.config.Emancipator.mysql);
 
     statsUrl = "http://" + serverConfig.hostname;
     if (serverConfig.port != 80) {
