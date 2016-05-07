@@ -13,6 +13,8 @@ var INSERT_MEDIA_PLAY_SQL = "INSERT INTO media_plays (video_id, user_id, title, 
 var INSERT_MEDIA_VOTE_SQL = "REPLACE INTO media_votes (play_id, user_id, vote) VALUES (?, ?, ?)";
 var INSERT_USER_SQL = "INSERT IGNORE INTO users (id, username) VALUES (?, ?)";
 
+var connectionPool = null;
+
 function MysqlDao(config) {
     if (!config) throw Error("Missing value for 'config' argument");
     if (!config.host) throw Error("Missing value for config.host");
@@ -20,26 +22,27 @@ function MysqlDao(config) {
     if (!config.password) throw Error("Missing value for config.password");
     if (!config.database) throw Error("Missing value for config.database");
 
-    if (!config.ssl) {
-        config.ssl = "Amazon RDS";
+    if (!connectionPool) {
+        connectionPool = mysql.createPool({
+            connectionLimit: config.connectionLimit || 20,
+            ssl: config.ssl || "Amazon RDS",
+            host: config.host,
+            user: config.user,
+            password: config.password,
+            database: config.database
+        });
     }
-
-    this.connection = mysql.createConnection(config);
-    this.connection.connect(function(err) {
-        if (err) {
-            LOG.error("Error occurred when connecting to MySQL database as user '{}', on host '{}'. Error: {}", config.user, config.host, err);
-        }
-        else {
-            LOG.info("Successfully established connection to MySQL database as user '{}', on host '{}'.", config.user, config.host);
-        }
-    });
 }
 
-MysqlDao.prototype.close = function() {
-    if (this.connection) {
-        this.connection.end();
-        this.connection = null;
-    }
+function getConnection(callback) {
+    connectionPool.getConnection(function(err, connection) {
+        if (err) {
+            LOG.error("Error occurred when trying to get connection", err);
+            return;
+        }
+
+        callback(connection);
+    });
 }
 
 /**
@@ -52,23 +55,27 @@ MysqlDao.prototype.close = function() {
  */
 MysqlDao.prototype.findUsersWithSimilarName = function(username) {
     return new Promise(function(resolve, reject) {
-        this.connection.query(FIND_SIMILAR_USERS_SQL, [username], function(err, rows) {
-            if (err) {
-                LOG.error("An error occurred while querying for users with names similar to {}: {}", username, err);
-                reject(err);
-                return;
-            }
+        getConnection(function(connection) {
+            connection.query(FIND_SIMILAR_USERS_SQL, [username], function(err, rows) {
+                connection.release();
 
-            var arr = rows.map(function(row) {
-                return {
-                    userID: row.id,
-                    username: row.username
-                };
+                if (err) {
+                    LOG.error("An error occurred while querying for users with names similar to {}: {}", username, err);
+                    reject(err);
+                    return;
+                }
+
+                var arr = rows.map(function(row) {
+                    return {
+                        userID: row.id,
+                        username: row.username
+                    };
+                });
+
+                resolve(arr);
             });
-
-            resolve(arr);
         });
-    }.bind(this));
+    });
 };
 
 /**
@@ -95,27 +102,31 @@ MysqlDao.prototype.findUsersWithSimilarName = function(username) {
  */
 MysqlDao.prototype.getIncomingVotesForUser = function(userID) {
     return new Promise(function(resolve, reject) {
-        this.connection.query(GET_INCOMING_VOTES_FOR_USER_SQL, [userID], function(err, rows) {
-            if (err) {
-                LOG.error("An error occurred while querying for incoming votes for userID={}: {}", userID, err);
-                reject(err);
-                return;
-            }
+        getConnection(function(connection) {
+            connection.query(GET_INCOMING_VOTES_FOR_USER_SQL, [userID], function(err, rows) {
+                connection.release();
 
-            var obj = { woots: 0, mehs: 0, votes: rows };
+                if (err) {
+                    LOG.error("An error occurred while querying for incoming votes for userID={}: {}", userID, err);
+                    reject(err);
+                    return;
+                }
 
-            rows.forEach(function(vote) {
-                if (vote.vote === 1) {
-                    obj.woots++;
-                }
-                else {
-                    obj.mehs++;
-                }
+                var obj = { woots: 0, mehs: 0, votes: rows };
+
+                rows.forEach(function(vote) {
+                    if (vote.vote === 1) {
+                        obj.woots++;
+                    }
+                    else {
+                        obj.mehs++;
+                    }
+                });
+
+                resolve(obj);
             });
-
-            resolve(obj);
         });
-    }.bind(this));
+    });
 };
 
 /**
@@ -126,21 +137,25 @@ MysqlDao.prototype.getIncomingVotesForUser = function(userID) {
  */
 MysqlDao.prototype.getNumberOfPlaysByUser = function(userID) {
     return new Promise(function(resolve, reject) {
-        this.connection.query(GET_NUMBER_OF_PLAYS_FOR_USER_SQL, [userID], function(err, rows) {
-            if (err) {
-                LOG.error("An error occurred while querying for number of plays by userID={}: {}", userID, err);
-                reject(err);
-                return;
-            }
+        getConnection(function(connection) {
+            connection.query(GET_NUMBER_OF_PLAYS_FOR_USER_SQL, [userID], function(err, rows) {
+                connection.release();
 
-            if (rows && rows.length > 0) {
-                resolve(rows[0].num_plays);
-            }
-            else {
-                resolve(0);
-            }
+                if (err) {
+                    LOG.error("An error occurred while querying for number of plays by userID={}: {}", userID, err);
+                    reject(err);
+                    return;
+                }
+
+                if (rows && rows.length > 0) {
+                    resolve(rows[0].num_plays);
+                }
+                else {
+                    resolve(0);
+                }
+            });
         });
-    }.bind(this));
+    });
 };
 
 /**
@@ -151,16 +166,20 @@ MysqlDao.prototype.getNumberOfPlaysByUser = function(userID) {
  */
 MysqlDao.prototype.getPlaysByUser = function(userID) {
     return new Promise(function(resolve, reject) {
-        this.connection.query(GET_PLAYS_FOR_USER_SQL, [userID], function(err, rows) {
-            if (err) {
-                LOG.error("An error occurred while querying for play history by userID={}: {}", userID, err);
-                reject(err);
-                return;
-            }
+        getConnection(function(connection) {
+            connection.query(GET_PLAYS_FOR_USER_SQL, [userID], function(err, rows) {
+                connection.release();
 
-            resolve(rows);
+                if (err) {
+                    LOG.error("An error occurred while querying for play history by userID={}: {}", userID, err);
+                    reject(err);
+                    return;
+                }
+
+                resolve(rows);
+            });
         });
-    }.bind(this));
+    });
 };
 
 /**
@@ -187,27 +206,31 @@ MysqlDao.prototype.getPlaysByUser = function(userID) {
  */
 MysqlDao.prototype.getVotesCastByUser = function(userID) {
     return new Promise(function(resolve, reject) {
-        this.connection.query(GET_OUTGOING_VOTES_FOR_USER_SQL, [userID], function(err, rows) {
-            if (err) {
-                LOG.error("An error occurred while querying for votes cast by userID={}: {}", userID, err);
-                reject(err);
-                return;
-            }
+        getConnection(function(connection) {
+            connection.query(GET_OUTGOING_VOTES_FOR_USER_SQL, [userID], function(err, rows) {
+                connection.release();
 
-            var obj = { woots: 0, mehs: 0, votes: rows };
+                if (err) {
+                    LOG.error("An error occurred while querying for votes cast by userID={}: {}", userID, err);
+                    reject(err);
+                    return;
+                }
 
-            rows.forEach(function(vote) {
-                if (vote.vote === 1) {
-                    obj.woots++;
-                }
-                else {
-                    obj.mehs++;
-                }
+                var obj = { woots: 0, mehs: 0, votes: rows };
+
+                rows.forEach(function(vote) {
+                    if (vote.vote === 1) {
+                        obj.woots++;
+                    }
+                    else {
+                        obj.mehs++;
+                    }
+                });
+
+                resolve(obj);
             });
-
-            resolve(obj);
         });
-    }.bind(this));
+    });
 };
 
 /**
@@ -219,26 +242,30 @@ MysqlDao.prototype.getVotesCastByUser = function(userID) {
  */
 MysqlDao.prototype.getUser = function(userID) {
     return new Promise(function(resolve, reject) {
-        this.connection.query(GET_USER_SQL, [userID], function(err, row) {
-            if (err) {
-                LOG.error("An error occurred while querying userID={}: {}", userID, err);
-                reject(err);
-                return;
-            }
+        getConnection(function(connection) {
+            connection.query(GET_USER_SQL, [userID], function(err, row) {
+                connection.release();
 
-            if (!row) {
-                resolve(null);
-                return;
-            }
+                if (err) {
+                    LOG.error("An error occurred while querying userID={}: {}", userID, err);
+                    reject(err);
+                    return;
+                }
 
-            var obj = {
-                userID: row.id,
-                username: row.username
-            };
+                if (!row) {
+                    resolve(null);
+                    return;
+                }
 
-            resolve(obj);
+                var obj = {
+                    userID: row.id,
+                    username: row.username
+                };
+
+                resolve(obj);
+            });
         });
-    }.bind(this));
+    });
 };
 
 /**
@@ -250,17 +277,21 @@ MysqlDao.prototype.getUser = function(userID) {
 MysqlDao.prototype.insertMediaPlay = function(play) {
     LOG.info("Attempting to insert media play: {}", play);
     return new Promise(function(resolve, reject) {
-        this.connection.query(INSERT_MEDIA_PLAY_SQL, [play.videoID, play.userID, play.title, play.duration, play.playedOn], function(err, result) {
-            if (err) {
-                LOG.info("Error occurred when inserting media play {}. The error: {}", play, err);
-                reject(err);
-            }
-            else {
-                LOG.info("Successfully inserted media play: {}", play);
-                resolve(result.insertId);
-            }
+        getConnection(function(connection) {
+            connection.query(INSERT_MEDIA_PLAY_SQL, [play.videoID, play.userID, play.title, play.duration, play.playedOn], function(err, result) {
+                connection.release();
+
+                if (err) {
+                    LOG.info("Error occurred when inserting media play {}. The error: {}", play, err);
+                    reject(err);
+                }
+                else {
+                    LOG.info("Successfully inserted media play: {}", play);
+                    resolve(result.insertId);
+                }
+            });
         });
-    }.bind(this));
+    });
 };
 
 /**
@@ -272,17 +303,21 @@ MysqlDao.prototype.insertMediaPlay = function(play) {
 MysqlDao.prototype.upsertMediaVote = function(vote) {
     LOG.info("Attempting to upsert media vote: {}", vote);
     return new Promise(function(resolve, reject) {
-        this.connection.query(INSERT_MEDIA_VOTE_SQL, [vote.playID, vote.userID, vote.vote], function(err, result) {
-            if (err) {
-                LOG.info("Error occurred when upserting media vote {}. The error: {}", vote, err);
-                reject(err);
-            }
-            else {
-                LOG.info("Successfully upserted media vote: {}", vote);
-                resolve(result.insertId);
-            }
+        getConnection(function(connection) {
+            connection.query(INSERT_MEDIA_VOTE_SQL, [vote.playID, vote.userID, vote.vote], function(err, result) {
+                connection.release();
+
+                if (err) {
+                    LOG.info("Error occurred when upserting media vote {}. The error: {}", vote, err);
+                    reject(err);
+                }
+                else {
+                    LOG.info("Successfully upserted media vote: {}", vote);
+                    resolve(result.insertId);
+                }
+            });
         });
-    }.bind(this));
+    });
 };
 
 /**
@@ -294,17 +329,21 @@ MysqlDao.prototype.upsertMediaVote = function(vote) {
 MysqlDao.prototype.upsertUser = function(user) {
     LOG.info("Attempting to upsert user: {}", user);
     return new Promise(function(resolve, reject) {
-        this.connection.query(INSERT_USER_SQL, [user.userID, user.username], function(err, result) {
-            if (err) {
-                LOG.info("Error occurred when upserting user {}. The error: {}", user, err);
-                reject(err);
-            }
-            else {
-                LOG.info("Successfully upserted user: {}", user);
-                resolve(result.insertId);
-            }
+        getConnection(function(connection) {
+            connection.query(INSERT_USER_SQL, [user.userID, user.username], function(err, result) {
+                connection.release();
+
+                if (err) {
+                    LOG.info("Error occurred when upserting user {}. The error: {}", user, err);
+                    reject(err);
+                }
+                else {
+                    LOG.info("Successfully upserted user: {}", user);
+                    resolve(result.insertId);
+                }
+            });
         });
-    }.bind(this));
+    });
 };
 
 module.exports = MysqlDao;
