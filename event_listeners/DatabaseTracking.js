@@ -59,10 +59,17 @@ function handleVoteEvent(event, globalObject) {
         return;
     }
 
-    dao.upsertMediaVote({
-        playID: currentSongPlayId,
+    var user = {
         userID: event.user.userID,
-        vote: event.vote
+        username: event.user.username
+    };
+
+    dao.upsertUser(user).then(function() {
+        dao.upsertMediaVote({
+            playID: currentSongPlayId,
+            userID: event.user.userID,
+            vote: event.vote
+        });
     });
 }
 
