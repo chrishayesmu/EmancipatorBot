@@ -10,7 +10,7 @@ var LOG = new DubBotBase.Log("HootUp");
 function handleUserJoinEvent(event, globalObject) {
     var bot = globalObject.bot;
 
-    if (event.user.userID === "53fcc4e54517e20200e73b61") { // hoot's user ID
+    if (event.userID === "53fcc4e54517e20200e73b61") { // hoot's user ID
         LOG.info("MOTHERFUCKING HOOT JOINED THE ROOM AND WE ARE HOOTING UP");
 
         // This used to be an ASCII owl, but since dub doesn't support consecutive
