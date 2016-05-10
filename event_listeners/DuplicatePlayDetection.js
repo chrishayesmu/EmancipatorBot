@@ -23,6 +23,7 @@ function handleAdvanceEvent(event, globalObject) {
     var now = Date.now();
 
     var playsOfSameVideo = globalObject.roomState.findPlaysForContentId(event.media.contentID);
+    LOG.info("playsOfSameVideo for contentID {} : {}", event.media.contentID, playsOfSameVideo);
 
     if (playsOfSameVideo.length < 2) {
         return;
@@ -34,7 +35,8 @@ function handleAdvanceEvent(event, globalObject) {
 
         // Make sure timeSincePlay > 0; otherwise we're actually looking at the currently playing song
         if (timeSincePlay > TIME_FUDGING_AMOUNT_IN_MS && timeSincePlay <= minElapsedTimeInMs) {
-            globalObject.bot.sendChat("This song was played less than {} minutes ago by {}.", requiredMinutesBetweenPlays, play.user.username);
+            LOG.info("Current song played {} ms ago; minElapsedTimeInMs is {}", timeSincePlay, minElapsedTimeInMs);
+            //globalObject.bot.sendChat("This song was played less than {} minutes ago by {}.", requiredMinutesBetweenPlays, play.user.username);
             skipIfAllowed(globalObject, event.incomingDJ.userID);
             return;
         }
