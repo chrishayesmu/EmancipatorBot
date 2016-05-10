@@ -65,25 +65,25 @@ function handler(event, globalObject) {
             var votesCastObj = values[1];
             var numberOfPlays = values[2];
 
-            var incomingWootPercentage = _calculateWootPercentage(incomingVotesObj);
-            var outgoingWootPercentage = _calculateWootPercentage(votesCastObj);
+            var incomingUpdubPercentage = _calculateUpdubPercentage(incomingVotesObj);
+            var outgoingUpdubPercentage = _calculateUpdubPercentage(votesCastObj);
             var userUrl = statsUrl.replace("{{userId}}", requestedUser.userID);
 
-            bot.sendChat("{} has played {} songs to EmancipatorBot, receiving {} woots and {} mehs ({}% woot rate).",
-                          requestedUser.username, numberOfPlays, incomingVotesObj.woots, incomingVotesObj.mehs, incomingWootPercentage);
+            bot.sendChat("{} has played {} songs to EmancipatorBot, receiving {} updubs and {} downdubs ({}% updub rate).",
+                          requestedUser.username, numberOfPlays, incomingVotesObj.updubs, incomingVotesObj.downdubs, incomingUpdubPercentage);
 
-            bot.sendChat("{} has cast {} woots and {} mehs ({}% woot rate).",
-                          requestedUser.username, votesCastObj.woots, votesCastObj.mehs, outgoingWootPercentage);
+            bot.sendChat("{} has cast {} updubs and {} downdubs ({}% updub rate).",
+                          requestedUser.username, votesCastObj.updubs, votesCastObj.downdubs, outgoingUpdubPercentage);
 
             bot.sendChat("View more at {}", userUrl);
         });
     });
 }
 
-function _calculateWootPercentage(votesObj) {
+function _calculateUpdubPercentage(votesObj) {
     var percentage = 0.0;
-    if (votesObj.woots > 0) {
-        percentage = votesObj.woots / (votesObj.woots + votesObj.mehs);
+    if (votesObj.updubs > 0) {
+        percentage = votesObj.updubs / (votesObj.updubs + votesObj.downdubs);
     }
 
     // Round to one decimal place

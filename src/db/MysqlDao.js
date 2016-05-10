@@ -112,14 +112,14 @@ MysqlDao.prototype.getIncomingVotesForUser = function(userID) {
                     return;
                 }
 
-                var obj = { woots: 0, mehs: 0, votes: rows };
+                var obj = { updubs: 0, downdubs: 0, votes: rows };
 
                 rows.forEach(function(vote) {
                     if (vote.vote === 1) {
-                        obj.woots++;
+                        obj.updubs++;
                     }
                     else {
-                        obj.mehs++;
+                        obj.downdubs++;
                     }
                 });
 
@@ -216,14 +216,14 @@ MysqlDao.prototype.getVotesCastByUser = function(userID) {
                     return;
                 }
 
-                var obj = { woots: 0, mehs: 0, votes: rows };
+                var obj = { updubs: 0, downdubs: 0, votes: rows };
 
                 rows.forEach(function(vote) {
                     if (vote.vote === 1) {
-                        obj.woots++;
+                        obj.updubs++;
                     }
                     else {
-                        obj.mehs++;
+                        obj.downdubs++;
                     }
                 });
 
