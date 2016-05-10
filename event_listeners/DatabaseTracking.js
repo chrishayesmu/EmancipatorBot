@@ -36,9 +36,9 @@ function handleAdvanceEvent(event, globalObject) {
         };
 
         dao.insertMediaPlay(play).then(function(insertPlayResult) {
-            if (insertPlayResult.lastID) {
+            if (insertPlayResult) {
                 // Store the primary key in the room state for tracking votes later
-                globalObject.roomState.playHistory[0].emancipatorPlayID = insertPlayResult.lastID;
+                globalObject.roomState.playHistory[0].emancipatorPlayID = insertPlayResult;
             }
             else {
                 LOG.warn("No play ID available after inserting play: {}", insertPlayResult);
@@ -61,7 +61,7 @@ function handleVoteEvent(event, globalObject) {
 
     dao.upsertMediaVote({
         playID: currentSongPlayId,
-        userID: event.userID,
+        userID: event.user.userID,
         vote: event.vote
     });
 }

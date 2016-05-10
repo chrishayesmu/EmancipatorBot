@@ -34,26 +34,13 @@ function chatHandler(event, /* unused */ globalObject) {
 }
 
 function grabHandler(event, globalObject) {
-    var user = globalObject.roomState.findUserInRoomById(event.userID);
-
-    if (!user) {
-        LOG.warn("Received grab event for userID = {}, but couldn't find them in the room", event.userID);
-        return;
-    }
-
-    LOG.info("{} grabbed the current song", user.username);
+    LOG.info("{} grabbed the current song", event.user.username);
 }
 
 function voteHandler(event, globalObject) {
-    var voteType = event.vote === 1 ? "wooted" : "mehhed";
-    var user = globalObject.roomState.findUserInRoomById(event.userID);
+    var voteType = event.vote === 1 ? "updubbed" : "downdubbed";
 
-    if (!user) {
-        LOG.warn("Received vote event (vote = {}) for userID = {}, but couldn't find them in the room", event.vote, event.userID);
-        return;
-    }
-
-    LOG.info("{} {} the current song", user.username, voteType);
+    LOG.info("{} {} the current song", event.user.username, voteType);
 }
 
 module.exports[Event.ADVANCE] = { handler: advanceHandler };
