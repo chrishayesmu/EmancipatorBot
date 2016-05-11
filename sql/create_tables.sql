@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS users (
     id          VARCHAR(30)     NOT NULL    PRIMARY KEY,
     username    VARCHAR(100)    NOT NULL
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS media_plays (
     play_id     INTEGER         NOT NULL    AUTO_INCREMENT  PRIMARY KEY,
@@ -9,8 +9,9 @@ CREATE TABLE IF NOT EXISTS media_plays (
     video_id    VARCHAR(15)     NOT NULL,
     title       VARCHAR(200)    NOT NULL,
     duration    INTEGER         NOT NULL,
-    played_on   DATETIME        NOT NULL
-);
+    played_on   DATETIME        NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS media_votes (
     play_id     INTEGER         NOT NULL,
@@ -21,4 +22,4 @@ CREATE TABLE IF NOT EXISTS media_votes (
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (play_id) REFERENCES media_plays(play_id),
     CONSTRAINT chk_vote CHECK (vote = 1 OR vote = -1)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
