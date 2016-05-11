@@ -275,7 +275,7 @@ MysqlDao.prototype.getVotesCastByUser = function(userID) {
 MysqlDao.prototype.getUser = function(userID) {
     return new Promise(function(resolve, reject) {
         getConnection(function(connection) {
-            connection.query(GET_USER_SQL, [userID], function(err, row) {
+            connection.query(GET_USER_SQL, [userID], function(err, rows) {
                 connection.release();
 
                 if (err) {
@@ -284,14 +284,15 @@ MysqlDao.prototype.getUser = function(userID) {
                     return;
                 }
 
-                if (!row) {
+                if (!rows || rows.length === 0) {
+                    LOG.info("No user found for userID={}", userID);
                     resolve(null);
                     return;
                 }
 
                 var obj = {
-                    userID: row.id,
-                    username: row.username
+                    userID: rows[0].id,
+                    username: rows[0].username
                 };
 
                 resolve(obj);
