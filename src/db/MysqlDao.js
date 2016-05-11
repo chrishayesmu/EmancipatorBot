@@ -32,6 +32,8 @@ function MysqlDao(config) {
             database: config.database
         });
     }
+
+    this.isReadOnly = !!config.isReadOnly;
 }
 
 function getConnection(callback) {
@@ -275,6 +277,11 @@ MysqlDao.prototype.getUser = function(userID) {
  * @returns {Promise} A Promise for an object with a lastID property representing the row added
  */
 MysqlDao.prototype.insertMediaPlay = function(play) {
+    if (this.isReadOnly) {
+        LOG.info("DAO is in read-only mode, not inserting media play");
+        return Promise.resolve(1);
+    }
+
     LOG.info("Attempting to insert media play: {}", play);
     return new Promise(function(resolve, reject) {
         getConnection(function(connection) {
@@ -301,6 +308,11 @@ MysqlDao.prototype.insertMediaPlay = function(play) {
  * @returns {Promise} A Promise for an object with a 'lastID' property representing the row added, if new, or a 'changes' property if updated
  */
 MysqlDao.prototype.upsertMediaVote = function(vote) {
+    if (this.isReadOnly) {
+        LOG.info("DAO is in read-only mode, not upserting media vote");
+        return Promise.resolve(1);
+    }
+
     LOG.info("Attempting to upsert media vote: {}", vote);
     return new Promise(function(resolve, reject) {
         getConnection(function(connection) {
@@ -327,6 +339,11 @@ MysqlDao.prototype.upsertMediaVote = function(vote) {
  * @returns {Promise} A Promise for an object with a lastID property representing the row added, if new, or a 'changes' property if updated
  */
 MysqlDao.prototype.upsertUser = function(user) {
+    if (this.isReadOnly) {
+        LOG.info("DAO is in read-only mode, not upserting user");
+        return Promise.resolve(1);
+    }
+
     LOG.info("Attempting to upsert user: {}", user);
     return new Promise(function(resolve, reject) {
         getConnection(function(connection) {
