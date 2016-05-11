@@ -10,7 +10,7 @@ var DubBotBase = require("dubbotbase");
 
 var LOG = new DubBotBase.Log("DuplicatePlayDetection");
 
-// Since plug.dj's clocks don't always agree with ours,
+// Since dubtrack's clocks don't always agree with ours,
 // and since some small amount of time can pass between the
 // song starting and this event handler running, we need to
 // fudge things a bit to avoid triggering a duplicate warning
