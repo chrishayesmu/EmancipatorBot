@@ -57,20 +57,22 @@ function handler(event, globalObject) {
         var promises = [
             dao.getIncomingVotesForUser(requestedUser.userID),
             dao.getVotesCastByUser(requestedUser.userID),
-            dao.getNumberOfPlaysByUser(requestedUser.userID)
+            dao.getNumberOfPlaysByUser(requestedUser.userID),
+            dao.getNumberOfDistinctPlaysByUser(requestedUser.userID)
         ];
 
         Promise.all(promises).then(function(values) {
             var incomingVotesObj = values[0];
             var votesCastObj = values[1];
             var numberOfPlays = values[2];
+            var numberOfDistinctPlays = values[3];
 
             var incomingUpdubPercentage = _calculateUpdubPercentage(incomingVotesObj);
             var outgoingUpdubPercentage = _calculateUpdubPercentage(votesCastObj);
             var userUrl = statsUrl.replace("{{userId}}", requestedUser.userID);
 
-            bot.sendChat("{} has played {} songs to EmancipatorBot, receiving {} updubs and {} downdubs ({}% updub rate).",
-                          requestedUser.username, numberOfPlays, incomingVotesObj.updubs, incomingVotesObj.downdubs, incomingUpdubPercentage);
+            bot.sendChat("{} has played {} songs ({} unique) to EmancipatorBot, receiving {} updubs and {} downdubs ({}% updub rate).",
+                          requestedUser.username, numberOfPlays, numberOfDistinctPlays, incomingVotesObj.updubs, incomingVotesObj.downdubs, incomingUpdubPercentage);
 
             bot.sendChat("{} has cast {} updubs and {} downdubs ({}% updub rate).",
                           requestedUser.username, votesCastObj.updubs, votesCastObj.downdubs, outgoingUpdubPercentage);

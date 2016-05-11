@@ -6,6 +6,7 @@ var LOG = new Log("MysqlDao");
 var FIND_SIMILAR_USERS_SQL = "SELECT id, username FROM users WHERE username LIKE CONCAT('%', CONCAT(?, '%'))";
 var GET_INCOMING_VOTES_FOR_USER_SQL = "SELECT mv.user_id AS userID, u.username AS username, mp.title AS videoTitle, mp.video_id AS videoID, mv.voted_on AS voteDate, vote FROM (media_votes mv JOIN media_plays mp USING (play_id)) JOIN users u ON u.id = mv.user_id WHERE mp.user_id = ?";
 var GET_OUTGOING_VOTES_FOR_USER_SQL = "SELECT mp.user_id AS userID, u.username AS username, mp.title AS videoTitle, mp.video_id AS videoID, mv.voted_on AS voteDate, vote FROM (media_votes mv JOIN media_plays mp USING (play_id)) JOIN users u ON u.id = mp.user_id WHERE mv.user_id = ?";
+var GET_NUMBER_OF_DISTINCT_PLAYS_FOR_USER_SQL = "SELECT COUNT(DISTINCT video_id) AS num_plays FROM media_plays WHERE user_id = ?";
 var GET_NUMBER_OF_PLAYS_FOR_USER_SQL = "SELECT COUNT(*) AS num_plays FROM media_plays WHERE user_id = ?";
 var GET_PLAYS_FOR_USER_SQL = "SELECT mp.play_id AS playID, mp.video_id AS videoID, mp.title, mp.duration AS durationInSeconds, mp.played_on AS playDate, mv.user_id AS votingUserID, mv.voted_on AS votingDate, mv.vote FROM media_plays mp LEFT JOIN media_votes mv USING (play_id) WHERE mp.user_id = ?";
 var GET_USER_SQL = "SELECT id, username FROM users WHERE id = ?";
@@ -145,6 +146,35 @@ MysqlDao.prototype.getNumberOfPlaysByUser = function(userID) {
 
                 if (err) {
                     LOG.error("An error occurred while querying for number of plays by userID={}: {}", userID, err);
+                    reject(err);
+                    return;
+                }
+
+                if (rows && rows.length > 0) {
+                    resolve(rows[0].num_plays);
+                }
+                else {
+                    resolve(0);
+                }
+            });
+        });
+    });
+};
+
+/**
+ * Gets the total number of distinct videos the user has played in the room.
+ *
+ * @param {integer} userID - The ID of the user to look up
+ * @returns {Promise} A promise for the number of unique plays the user has
+ */
+MysqlDao.prototype.getNumberOfDistinctPlaysByUser = function(userID) {
+    return new Promise(function(resolve, reject) {
+        getConnection(function(connection) {
+            connection.query(GET_NUMBER_OF_DISTINCT_PLAYS_FOR_USER_SQL, [userID], function(err, rows) {
+                connection.release();
+
+                if (err) {
+                    LOG.error("An error occurred while querying for number of distinct plays by userID={}: {}", userID, err);
                     reject(err);
                     return;
                 }
