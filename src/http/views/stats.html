@@ -20,18 +20,18 @@
         <div class="panel panel-default votes-panel">
             <h3 class="panel-heading votes-heading">Votes cast</h3>
             <div class="panel-body">
-                <p><strong>{{outgoingVotesObj.woots}} woots / {{outgoingVotesObj.mehs}} mehs</strong></p>
+                <p><strong>{{outgoingVotesObj.updubs}} updubs / {{outgoingVotesObj.downdubs}} downdubs</strong></p>
                 <div id="outgoingVotesPieChart"></div>
-                <h3>Top 10 pluggers you vote on</h3>
+                <h3>Top 10 dubbers you vote on</h3>
                 <div id="outgoingVotesBarChart"></div>
             </div>
         </div>
         <div class="panel panel-default votes-panel">
             <h3 class="panel-heading votes-heading">Votes received</h3>
             <div class="panel-body">
-                <p><strong>{{incomingVotesObj.woots}} woots / {{incomingVotesObj.mehs}} mehs</strong></p>
+                <p><strong>{{incomingVotesObj.updubs}} updubs / {{incomingVotesObj.downdubs}} downdubs</strong></p>
                 <div id="incomingVotesPieChart"></div>
-                <h3>Top 10 pluggers who vote on you</h3>
+                <h3>Top 10 dubbers who vote on you</h3>
                 <div id="incomingVotesBarChart"></div>
             </div>
         </div>
@@ -64,8 +64,8 @@
                     var dataTable = new google.visualization.DataTable();
                     dataTable.addColumn("string", "Title");
                     dataTable.addColumn("number", "Plays");
-                    dataTable.addColumn("number", "Total woots");
-                    dataTable.addColumn("number", "Total mehs");
+                    dataTable.addColumn("number", "Total updubs");
+                    dataTable.addColumn("number", "Total downdubs");
                     dataTable.addRows(data);
 
                     var table = new google.visualization.Table(element);

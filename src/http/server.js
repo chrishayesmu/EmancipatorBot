@@ -57,7 +57,7 @@ function handleStatsRequest(request, response) {
 
         // TODO: keep raw data here and move all the processing to UI
         var barGraphBase = [
-            [ "User", "Woots", "Mehs", { role: "annotation" } ]
+            [ "User", "Updubs", "Downdubs", { role: "annotation" } ]
         ];
 
         var outgoingVotesBarGraphData = barGraphBase.concat(groupVoteData(votesCastObj));
@@ -86,16 +86,16 @@ function groupVoteData(votes) {
             data[vote.userID] = {
                 username: vote.username,
                 userID: vote.userID,
-                woots: 0,
-                mehs: 0
+                updubs: 0,
+                downdubs: 0
             };
         }
 
         if (vote.vote === 1) {
-            data[vote.userID].woots++;
+            data[vote.userID].updubs++;
         }
         else {
-            data[vote.userID].mehs++;
+            data[vote.userID].downdubs++;
         }
     });
 
@@ -105,7 +105,7 @@ function groupVoteData(votes) {
     });
 
     arr = arr.sort(function(item1, item2) {
-        return (item2.woots + item2.mehs) - (item1.woots + item1.mehs);
+        return (item2.updubs + item2.downdubs) - (item1.updubs + item1.downdubs);
     });
 
     // Take only the top 10 users and turn them into an array appropriate for graphing
@@ -113,8 +113,8 @@ function groupVoteData(votes) {
     for (var i = 0; i < 10 && i < arr.length; i++) {
         output.push([
             arr[i].username,
-            arr[i].woots,
-            arr[i].mehs,
+            arr[i].updubs,
+            arr[i].downdubs,
             statsUrl.replace("{{userID}}", arr[i].userID)
         ]);
     }

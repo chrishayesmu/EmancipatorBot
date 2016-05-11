@@ -7,10 +7,10 @@ function convertPlaysToTableFormat(plays) {
         if (!map[play.videoID]) {
             map[play.videoID] = {
                 knownPlayIDs: [],
-                mehs: 0,
+                downdubs: 0,
                 plays: 0,
                 title: videoDisplayBase.replace("{{videoID}}", play.videoID).replace("{{title}}", play.title),
-                woots: 0
+                updubs: 0
             };
         }
 
@@ -23,10 +23,10 @@ function convertPlaysToTableFormat(plays) {
         var vote = play.vote;
 
         if (vote === 1) {
-            map[play.videoID].woots++;
+            map[play.videoID].updubs++;
         }
         else if (vote === -1) {
-            map[play.videoID].mehs++;
+            map[play.videoID].downdubs++;
         }
     }
 
@@ -37,8 +37,8 @@ function convertPlaysToTableFormat(plays) {
         rows.push([
             data.title,
             data.plays,
-            data.woots,
-            data.mehs
+            data.updubs,
+            data.downdubs
         ]);
     }
 
@@ -57,13 +57,13 @@ function createPieCharts(incomingVotes, outgoingVotes) {
             "sortOrder": "value-desc",
             "content": [
                 {
-                    "label": "Woots",
-                    "value": incomingVotes.woots,
+                    "label": "Updubs",
+                    "value": incomingVotes.updubs,
                     "color": "#90ad2f"
                 },
                 {
-                    "label": "Mehs",
-                    "value": incomingVotes.mehs,
+                    "label": "Downdubs",
+                    "value": incomingVotes.downdubs,
                     "color": "#c42e3b"
                 }
             ]
@@ -125,13 +125,13 @@ function createPieCharts(incomingVotes, outgoingVotes) {
             "sortOrder": "value-desc",
             "content": [
                 {
-                    "label": "Woots",
-                    "value": outgoingVotes.woots,
+                    "label": "Updubs",
+                    "value": outgoingVotes.updubs,
                     "color": "#90ad2f"
                 },
                 {
-                    "label": "Mehs",
-                    "value": outgoingVotes.mehs,
+                    "label": "Downdubs",
+                    "value": outgoingVotes.downdubs,
                     "color": "#c42e3b"
                 }
             ]
