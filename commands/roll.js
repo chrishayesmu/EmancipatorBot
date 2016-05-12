@@ -3,8 +3,6 @@ var DubBotBase = require("dubbotbase");
 var LOG = new DubBotBase.Log("RollCommand");
 
 function handler(event, globalObject) {
-    LOG.info("Roll command was called by {}", event.username);
-
     var minInclude = 1;
     var maxInclude = 100;
 
@@ -29,11 +27,11 @@ function handler(event, globalObject) {
     }
 
     if (minInclude > maxInclude) {
-        globalObject.bot.sendChat("Can't roll a number between {} and {}", minInclude, maxInclude);
+        globalObject.bot.sendChat("@{}: can't roll a number between {} and {}", event.username, minInclude, maxInclude);
     }
     else {
         var randomInt = getRandomInt(minInclude, maxInclude);
-        globalObject.bot.sendChat("Rolled {} (from {} - {})", randomInt, minInclude, maxInclude);
+        globalObject.bot.sendChat("Rolled {} for {} (from {} - {})", randomInt, event.username, minInclude, maxInclude);
     }
 }
 
