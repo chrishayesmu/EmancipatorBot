@@ -8,7 +8,7 @@ function handler(event, globalObject) {
     var bot = globalObject.bot;
     var index;
 
-    if (event.args && event.args.length > 0 && Number.isInteger(event.args[0])) {
+    if (event.args && event.args.length > 0 && Number.isInteger(Number(event.args[0]))) {
         index = Number(event.args[0]) - 1; // argument is provided as 1-indexed
     }
     else {
