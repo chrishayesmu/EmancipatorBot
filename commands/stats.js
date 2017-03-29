@@ -12,8 +12,8 @@ function init(globalObject) {
     dao = new MysqlDao(globalObject.config.Emancipator.mysql);
 
     statsUrl = "http://" + serverConfig.hostname;
-    if (serverConfig.port != 80) {
-        statsUrl = statsUrl + ":" + serverConfig.port;
+    if (serverConfig.externalPort != 80) {
+        statsUrl = statsUrl + ":" + serverConfig.externalPort;
     }
 
     statsUrl = statsUrl + "/stats/{{userId}}";

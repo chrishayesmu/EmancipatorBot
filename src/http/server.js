@@ -13,8 +13,9 @@ var statsHref = "<a href='{{url}}'>{{username}}</a>";
 
 function start(globalObject) {
     var hostname = globalObject.config.Emancipator.HttpServer.hostname;
-    var port = globalObject.config.Emancipator.HttpServer.port;
-    statsUrl = createUrl(hostname, port) + "/stats/{{userID}}";
+    var externalPort = globalObject.config.Emancipator.HttpServer.externalPort;
+    var listenPort = globalObject.config.Emancipator.HttpServer.listenPort;
+    statsUrl = createUrl(hostname, externalPort) + "/stats/{{userID}}";
 
     dao = new MysqlDao(globalObject.config.Emancipator.mysql);
 
@@ -29,8 +30,8 @@ function start(globalObject) {
 
     app.get("/stats/:userID/", handleStatsRequest);
 
-    app.listen(port);
-    LOG.info("Started HTTP server listening on hostname {} and port {}", hostname, port);
+    app.listen(listenPort);
+    LOG.info("Started HTTP server listening on hostname {} and port {}", hostname, listenPort);
 }
 
 function handleStatsRequest(request, response) {

@@ -26,7 +26,8 @@
         },
         "HttpServer": {
             "hostname": "localhost",
-            "port": 8080
+            "externalPort": 80,
+            "listenPort": 8080
         },
         "OrdinaryFella": {
             "updubPercentageThreshold" : 97
