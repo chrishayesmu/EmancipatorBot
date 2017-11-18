@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "consolidate": "^0.12.1",
-    "dubbotbase": "^0.4.4",
+    "dubbotbase": "^0.4.6",
     "es6-promise": "2.1.0",
     "express": "^4.12.4",
     "mustache": "^2.0.0",
